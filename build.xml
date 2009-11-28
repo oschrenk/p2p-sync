@@ -1,0 +1,38 @@
+<project name="peer2peer-sync" default="dist" basedir=".">
+
+	<property name="src" location="src" />
+	<property name="examples" location="examples" />
+	<property name="lib" location="lib" />
+	<property name="build" location="build" />
+	<property name="dist" location="dist" />
+
+	<target name="init">
+		<mkdir dir="${build}" />
+	</target>
+
+	<target name="compile" depends="init" description="compile the source ">
+		<javac destdir="${build}">
+			<src path="${src}" />
+			<src path="${examples}" />
+			<classpath>
+				<fileset dir="${lib}">
+					<include name="**.*jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="dist" depends="compile" description="generate the distribution">
+		<copy todir="${dist}">
+			<fileset dir="${lib}" />
+		</copy>
+
+		<mkdir dir="${dist}" />
+		<jar jarfile="${dist}/sync.jar" basedir="${build}" manifest="manifest.mf" />
+	</target>
+
+	<target name="clean" description="clean up">
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+</project>

@@ -1,0 +1,2 @@
+Main-Class: org.hhu.cs.p2p.core.FolderSync
+

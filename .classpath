@@ -2,7 +2,10 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="lib"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="src" path="examples"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.7.0"/>
 	<classpathentry kind="lib" path="lib/hazelcast-1.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/jewelcli-0.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
