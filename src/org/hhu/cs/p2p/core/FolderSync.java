@@ -10,11 +10,19 @@ import uk.co.flamingpenguin.jewel.cli.CliFactory;
 
 public class FolderSync {
 
-	// Ordner anzeigen, ändern
-	// Clients auflisten, hinzufügen, entfernen
-	// Service stoppen
-	// Debugging output an/aus
-
+	// show directories under watch, 
+	// add directory to watch
+	// remove directory to watch
+	
+	// list clients
+	// add clients manually
+	// remove clients manually
+	// forbid clients to connect
+	
+	// stop service
+	
+	// debug mode
+	
 	public static void main(String[] args) {
 
 		// check argument syntax

@@ -1,39 +1,74 @@
 package org.hhu.cs.p2p.net;
 
-import java.nio.file.Path;
+import java.io.IOException;
+
+import org.hhu.cs.p2p.io.DirectoryWatcher;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.IMap;
 
-public class IndexService {
+public class IndexService implements Runnable {
 
 	private final IMap<String, String> map = Hazelcast.getMap("global-index");
-	
-	private Path basePath;
-	
-	public IndexService(Path basePath) {
-		this.basePath = basePath;
-		 this.map.addEntryListener(new ServiceCallback(), true);
+
+	private DirectoryWatcher directoryWatcher;
+
+	public IndexService(DirectoryWatcher directoryWatcher) {
+		this.directoryWatcher = directoryWatcher;
+		this.map.addEntryListener(new ServiceCallback(), true);
 	}
-	
+
+	@Override
+	public void run() {
+		try {
+			directoryWatcher.run();
+		} catch (IOException e) {
+			// TODO add error handler
+			e.printStackTrace();
+		}
+	}
+
 	private class ServiceCallback implements EntryListener {
-        
-        public void entryAdded(EntryEvent event) {
-           event.getKey();
-        }
 
-        public void entryRemoved(EntryEvent event) {
-           
-        }
+		public void entryAdded(EntryEvent event) {
+			event.getKey();
 
-        public void entryUpdated(EntryEvent event) {
-            
-        }
+			// who added the file?
+			// ignore if added via network
 
-        public void entryEvicted(EntryEvent event) {
-        }
-    }
-	
+			// connect to the initial owner of the file
+
+			// request the file
+
+			// open new connection for file transfer
+
+			// handle callback when finished
+			
+			// write the file to temp dir, copy it next to target and switch
+
+			// optimize
+			// try to collect multiple changes?
+			// keep old copies as shadows?
+
+		}
+
+		public void entryRemoved(EntryEvent event) {
+			// delete file
+		}
+
+		public void entryUpdated(EntryEvent event) {
+			// handle like entry added
+
+			// if time try to build binary diff
+
+		}
+
+		// TODO doc what is the difference to remove
+		public void entryEvicted(EntryEvent event) {
+			entryRemoved(event);
+		}
+	}
+
 }

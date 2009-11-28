@@ -23,7 +23,7 @@
 	</target>
 
 	<target name="dist" depends="compile" description="generate the distribution">
-		<copy todir="${dist}">
+		<copy todir="${dist}/lib">
 			<fileset dir="${lib}" />
 		</copy>
 
