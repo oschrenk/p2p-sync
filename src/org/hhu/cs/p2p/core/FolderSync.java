@@ -1,5 +1,9 @@
 package org.hhu.cs.p2p.core;
 
+import java.io.IOException;
+
+import org.hhu.cs.p2p.io.DirectoryWatcher;
+
 import uk.co.flamingpenguin.jewel.cli.ArgumentValidationException;
 import uk.co.flamingpenguin.jewel.cli.CliFactory;
 
@@ -12,6 +16,7 @@ public class FolderSync {
 
 	public static void main(String[] args) {
 
+		// check argument syntax
 		CommandLineArguments parsedArguments;
 		try {
 			parsedArguments = CliFactory.parseArguments(
@@ -21,6 +26,7 @@ public class FolderSync {
 			return;
 		}
 
+		// check validity
 		Options options;
 		try {
 			options = new OptionsBuilder().setArguments(parsedArguments)
@@ -30,6 +36,16 @@ public class FolderSync {
 			return;
 		}
 		
+		// fire up service
+		new FolderSync(options);
+	}
+	
+	public FolderSync (Options options) {
+		try {
+			new DirectoryWatcher(options.getWatchDirectory()).run();
+		} catch (IOException e) {
+			// can't happen because of validity check
+		}
 	}
 
 }

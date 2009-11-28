@@ -24,12 +24,15 @@ public class DirectoryWatcher {
 	private final WatchService watchService;
 	private final Path directory;
 
-	public DirectoryWatcher(String searchDir) throws IOException {
+	public DirectoryWatcher(Path directory) throws IOException {
+		this.directory = directory;
+
 		FileSystem fs = FileSystems.getDefault();
 		watchService = fs.newWatchService();
-		directory = fs.getPath(searchDir);
+
 		directory.register(watchService, ENTRY_CREATE, ENTRY_MODIFY,
 				ENTRY_DELETE, OVERFLOW);
+
 		logger.info("registered watchService on " + directory);
 	}
 
