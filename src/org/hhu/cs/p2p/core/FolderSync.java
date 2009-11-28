@@ -3,6 +3,7 @@ package org.hhu.cs.p2p.core;
 import java.io.IOException;
 
 import org.hhu.cs.p2p.io.DirectoryWatcher;
+import org.hhu.cs.p2p.net.IndexService;
 
 import uk.co.flamingpenguin.jewel.cli.ArgumentValidationException;
 import uk.co.flamingpenguin.jewel.cli.CliFactory;
@@ -35,17 +36,11 @@ public class FolderSync {
 			System.err.println(e.getMessage());
 			return;
 		}
-		
-		// fire up service
-		new FolderSync(options);
-	}
-	
-	public FolderSync (Options options) {
+
 		try {
-			new DirectoryWatcher(options.getWatchDirectory()).run();
+			new IndexService(new DirectoryWatcher(options.getWatchDirectory()));
 		} catch (IOException e) {
 			// can't happen because of validity check
 		}
 	}
-
 }
