@@ -14,12 +14,12 @@ import java.nio.file.StandardWatchEventKind;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.logging.Logger;
 
-public class DirectoryWatcher {
+import org.apache.log4j.Logger;
 
-	static final Logger logger = Logger.getLogger(DirectoryWatcher.class
-			.getName());
+public class DirectoryWatcher implements Runnable {
+
+	static final Logger logger = Logger.getLogger(DirectoryWatcher.class);
 
 	private final WatchService watchService;
 	private final Path directory;
@@ -36,7 +36,16 @@ public class DirectoryWatcher {
 		logger.info("registered watchService on " + directory);
 	}
 
-	public void run() throws IOException {
+	public void run() {
+		try {
+			watch();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void watch() throws IOException {
 
 		for (;;) {
 			WatchKey key;

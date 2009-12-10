@@ -1,5 +1,6 @@
 package org.hhu.cs.p2p.core;
 
+import java.io.Console;
 import java.io.File;
 
 import org.apache.log4j.Appender;
@@ -31,10 +32,10 @@ public class FolderSync {
 		logger.addAppender(startupAppender);
 
 		// check argument syntax
-		Cli<CommandLineArguments> cli = null;
-		CommandLineArguments parsedArguments;
+		Cli<StartupArguments> cli = null;
+		StartupArguments parsedArguments;
 		try {
-			cli = CliFactory.createCli(CommandLineArguments.class);
+			cli = CliFactory.createCli(StartupArguments.class);
 			parsedArguments = cli.parseArguments(args);
 		} catch (ArgumentValidationException e) {
 			logger.fatal(cli.getHelpMessage());
@@ -68,19 +69,20 @@ public class FolderSync {
 		try {
 			indexService = new Thread(new IndexService(new DirectoryWatcher(
 					options.getWatchDirectory())));
-			indexService.run();
+			indexService.start();
 		} catch (Throwable e) {
 			// TODO log it
-
 		}
-
+		
+		Console console = System.console();
+		String line;
 		while (!isShutdownRequested()) {
-			// just wait
+			line = console.readLine();
+			System.out.println(line);
 		}
 
 		// shutdown actions
 		logger.removeAppender(startupAppender);
-
 	}
 
 	/**

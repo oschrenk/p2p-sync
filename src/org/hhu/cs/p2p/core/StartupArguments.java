@@ -5,7 +5,7 @@ import uk.co.flamingpenguin.jewel.cli.Option;
 import uk.co.flamingpenguin.jewel.cli.Unparsed;
 
 @CommandLineInterface(application = "sync")
-public interface CommandLineArguments {
+public interface StartupArguments {
 
 	@Option(shortName="d", description="starts the service as a daemon")
 	boolean isDaemon();

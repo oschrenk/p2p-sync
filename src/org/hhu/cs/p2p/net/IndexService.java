@@ -1,7 +1,5 @@
 package org.hhu.cs.p2p.net;
 
-import java.io.IOException;
-
 import org.hhu.cs.p2p.io.DirectoryWatcher;
 
 import com.hazelcast.core.EntryEvent;
@@ -22,12 +20,8 @@ public class IndexService implements Runnable {
 
 	@Override
 	public void run() {
-		try {
-			directoryWatcher.run();
-		} catch (IOException e) {
-			// TODO add error handler
-			e.printStackTrace();
-		}
+		new Thread(directoryWatcher).start();
+		System.out.println("dd");
 	}
 
 	private class ServiceCallback implements EntryListener {

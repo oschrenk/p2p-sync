@@ -12,12 +12,12 @@ public class OptionsBuilder {
 
 	private Path watchDirectory;
 
-	public OptionsBuilder setArguments(CommandLineArguments arguments) {
+	public OptionsBuilder setArguments(StartupArguments arguments) {
 
 		return build(arguments);
 	}
 
-	private OptionsBuilder build(CommandLineArguments arguments) {
+	private OptionsBuilder build(StartupArguments arguments) {
 		setWatchDirectory(arguments.getDirectory());
 		return this;
 	}
