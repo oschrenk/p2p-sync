@@ -9,21 +9,55 @@ import java.nio.file.attribute.Attributes;
 import java.nio.file.attribute.BasicFileAttributes;
 import static java.nio.file.AccessMode.*;
 
+/**
+ * Creates valid options for the startup of the sync application
+ * 
+ * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
+ * 
+ */
 public class OptionsBuilder {
 
-	private Path watchDirectory;
+	private String directory;
 
+	/**
+	 * Commodity method for setting all arguments at once using the JewelCLI
+	 * interface
+	 * 
+	 * @param arguments
+	 *            the arguments used for startup
+	 * @return
+	 */
 	public OptionsBuilder setArguments(StartupArguments arguments) {
-
-		return build(arguments);
-	}
-
-	private OptionsBuilder build(StartupArguments arguments) {
-		setWatchDirectory(arguments.getDirectory());
+		this.directory = arguments.getDirectory();
 		return this;
 	}
 
-	public OptionsBuilder setWatchDirectory(String path) {
+	/**
+	 * Build the startup options
+	 * 
+	 * @return valid startup options for the sync application
+	 * @throws IllegalArgumentException
+	 *             if the used arguments aren't semenatically correct
+	 */
+	public Options build() throws IllegalArgumentException {
+		Path watchDirectory = getWatchDirectory(directory);
+
+		return new Options(watchDirectory);
+	}
+
+	/**
+	 * Returns the absolute {@link Path} to the directory that should be watched
+	 * 
+	 * @param path
+	 * @return an absolute path to a directory that can be read and written to
+	 * @throws IllegalArgumentException
+	 *             if the path isn't a directory, or can't be read or written to
+	 */
+	private Path getWatchDirectory(String path) throws IllegalArgumentException {
+		if (path == null) {
+			throw new IllegalArgumentException("\"" + path
+					+ "\" is not a valid directory.");
+		}
 		FileSystem fs = FileSystems.getDefault();
 		Path directory = fs.getPath(path);
 		BasicFileAttributes attributes;
@@ -39,14 +73,6 @@ public class OptionsBuilder {
 			throw new IllegalArgumentException("\"" + path
 					+ "\" is not a valid directory.");
 		}
-
-		this.watchDirectory = directory;
-		return this;
+		return directory.toAbsolutePath();
 	}
-
-	public Options build() throws IllegalArgumentException {
-		// TODO check options
-		return new Options(watchDirectory);
-	}
-
 }
