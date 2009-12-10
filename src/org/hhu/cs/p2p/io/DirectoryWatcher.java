@@ -14,6 +14,7 @@ import java.nio.file.StandardWatchEventKind;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -30,10 +31,19 @@ public class DirectoryWatcher implements Runnable {
 		FileSystem fs = FileSystems.getDefault();
 		watchService = fs.newWatchService();
 
+		DirectoryVisitor visitor = new DirectoryVisitor();
+		Files.walkFileTree(directory, visitor);
+		List<Path> paths = visitor.getPaths();
+
+		for (Path path : paths) {
+			System.out.println(path);
+		}
+
 		directory.register(watchService, ENTRY_CREATE, ENTRY_MODIFY,
 				ENTRY_DELETE, OVERFLOW);
 
 		logger.info("registered watchService on " + directory);
+
 	}
 
 	public void run() {
