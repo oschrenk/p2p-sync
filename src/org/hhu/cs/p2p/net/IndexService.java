@@ -14,8 +14,11 @@ public class IndexService implements Runnable {
 	private DirectoryWatcher directoryWatcher;
 
 	public IndexService(DirectoryWatcher directoryWatcher) {
-		Hazelcast.getCluster().addMembershipListener(new SyncMembershipListener());
-		
+		Hazelcast.getCluster().addMembershipListener(
+				new SyncMembershipListener());
+
+		Hazelcast.getCluster().getMembers();
+
 		this.directoryWatcher = directoryWatcher;
 		this.map.addEntryListener(new ServiceCallback(), true);
 	}
@@ -40,7 +43,7 @@ public class IndexService implements Runnable {
 			// open new connection for file transfer
 
 			// handle callback when finished
-			
+
 			// write the file to temp dir, copy it next to target and switch
 
 			// optimize
