@@ -1,0 +1,25 @@
+#!/bin/sh
+
+#Inspiration from http://barelyenough.org/blog/2005/03/java-daemon/
+
+JAR=dist/sync.jar
+PID=daemon.pid
+
+launch_daemon()
+{
+/bin/sh <<EOF
+java -Ddaemon.pidfile=$PID -jar $JAR -d $1 <&- &
+pid=\$!
+echo \${pid}
+EOF
+}
+daemon_pid=`launch_daemon $1`
+
+if ps -p "$daemon_pid" >/dev/null 2>&1
+then
+  # daemon is running.
+  echo ${daemon_pid} > $PID
+else
+echo ${daemon_pid} > $PID
+  echo "Daemon did not start."
+fi

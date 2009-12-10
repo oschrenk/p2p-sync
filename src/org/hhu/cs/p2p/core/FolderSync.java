@@ -52,19 +52,22 @@ public class FolderSync {
 		}
 
 		// daemonize
-		getPidFile().deleteOnExit();
-		System.out.close();
-		System.err.close();
+		if (parsedArguments.isDaemon()) {
+			// daemonize
+			getPidFile().deleteOnExit();
+			System.out.close();
+			System.err.close();
 
-		// make sure system shutdown softly
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				shutdown();
-			}
-		});
+			// make sure system shutdown softly
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				public void run() {
+					shutdown();
+				}
+			});
+		}
 
-		// we don't need the console appender anymore
-		logger.removeAppender(startupAppender);
+		logger.info("tryy");
+		
 
 		try {
 			indexService = new Thread(new IndexService(new DirectoryWatcher(
@@ -80,6 +83,7 @@ public class FolderSync {
 		}
 
 		// shutdown actions
+		logger.removeAppender(startupAppender);
 
 	}
 
