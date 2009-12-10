@@ -7,6 +7,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.Attributes;
 import java.nio.file.attribute.BasicFileAttributes;
+import static java.nio.file.AccessMode.*;
 
 public class OptionsBuilder {
 
@@ -27,15 +28,16 @@ public class OptionsBuilder {
 		Path directory = fs.getPath(path);
 		BasicFileAttributes attributes;
 		try {
+			directory.checkAccess(READ, WRITE);
 			attributes = Attributes.readBasicFileAttributes(directory,
 					LinkOption.NOFOLLOW_LINKS);
 		} catch (IOException e) {
-			throw new IllegalArgumentException(
-					"\"" + path + "\" is not a valid directory.");
+			throw new IllegalArgumentException("\"" + path
+					+ "\" is not a valid directory.");
 		}
 		if (!attributes.isDirectory()) {
-			throw new IllegalArgumentException(
-					"\"" + path + "\" is not a valid directory.");
+			throw new IllegalArgumentException("\"" + path
+					+ "\" is not a valid directory.");
 		}
 
 		this.watchDirectory = directory;
