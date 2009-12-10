@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="lib/hazelcast-1.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/jewelcli-0.6.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
