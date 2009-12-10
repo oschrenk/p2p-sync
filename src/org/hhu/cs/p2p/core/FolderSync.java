@@ -53,7 +53,6 @@ public class FolderSync {
 
 		// daemonize
 		if (parsedArguments.isDaemon()) {
-			// daemonize
 			getPidFile().deleteOnExit();
 			System.out.close();
 			System.err.close();
@@ -67,7 +66,6 @@ public class FolderSync {
 		}
 
 		logger.info("tryy");
-		
 
 		try {
 			indexService = new Thread(new IndexService(new DirectoryWatcher(
