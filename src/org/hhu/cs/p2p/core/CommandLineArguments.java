@@ -1,10 +1,12 @@
 package org.hhu.cs.p2p.core;
 
-import uk.co.flamingpenguin.jewel.cli.Option;
+import uk.co.flamingpenguin.jewel.cli.CommandLineInterface;
+import uk.co.flamingpenguin.jewel.cli.Unparsed;
 
+@CommandLineInterface(application = "sync")
 public interface CommandLineArguments {
 
-	 @Option(shortName="d", longName = "directory", description="The directory to watch")
-	 String getDirectory();
-	
+	@Unparsed(name = "directory")
+	String getDirectory();
+
 }

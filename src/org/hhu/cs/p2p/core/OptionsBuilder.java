@@ -30,11 +30,12 @@ public class OptionsBuilder {
 			attributes = Attributes.readBasicFileAttributes(directory,
 					LinkOption.NOFOLLOW_LINKS);
 		} catch (IOException e) {
-			throw new IllegalArgumentException(e);
+			throw new IllegalArgumentException(
+					"\"" + path + "\" is not a valid directory.");
 		}
 		if (!attributes.isDirectory()) {
 			throw new IllegalArgumentException(
-					"Not a valid directory. Change path.");
+					"\"" + path + "\" is not a valid directory.");
 		}
 
 		this.watchDirectory = directory;
