@@ -65,8 +65,6 @@ public class FolderSync {
 			});
 		}
 
-		logger.info("tryy");
-
 		try {
 			indexService = new Thread(new IndexService(new DirectoryWatcher(
 					options.getWatchDirectory())));
