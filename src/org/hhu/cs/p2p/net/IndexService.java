@@ -14,6 +14,8 @@ public class IndexService implements Runnable {
 	private DirectoryWatcher directoryWatcher;
 
 	public IndexService(DirectoryWatcher directoryWatcher) {
+		Hazelcast.getCluster().addMembershipListener(new SyncMembershipListener());
+		
 		this.directoryWatcher = directoryWatcher;
 		this.map.addEntryListener(new ServiceCallback(), true);
 	}
@@ -21,7 +23,6 @@ public class IndexService implements Runnable {
 	@Override
 	public void run() {
 		new Thread(directoryWatcher).start();
-		System.out.println("dd");
 	}
 
 	private class ServiceCallback implements EntryListener {
