@@ -1,0 +1,49 @@
+h1. README
+
+h2. Initialization Phase 
+
+The initialization phase takes place when a new member joins the network and it has to pair up with a preexisting member, let's call him member A, in order to sync the directory being watched. The new member, let's call him B, hasn't synchronized before but may already have some files in that directory.
+
+Both members have to exchange their index, to decide what differs between. If both parties communicate the first time they both have to exchange their full index. Later they might just exchange a version number of the index file to decide if changes to the index has been made.
+
+If both parties have access to the current index of their respective partner they can decide what changes are neccesary to get to the current state.
+
+Both parties have to communicate the state of the files in order to decide which state is the correct. Both parties have to acknowledge changes that will be made to the file system, as files may be added, changed or deleted that weren't supposed to.
+
+Let's consider the following simple scenario, where we have to sync two directories, where each party holds four different files. Files c and d are the same file, where @_1@ and @_2@ indicate different versions, @_1@ one being the older and @_2@  being the newer one.  If a file is missing in the row, the user doesn't have the file. 
+
+|_. Case |_. User A|_. User B|
+| 1 | a | |
+| 2 | b | b |
+| 3 | c_1 | c_2 |
+| 4 | d_2 | d_1 |
+| 5 |  | e |
+
+The first and the fifth, and respectively the third and foruth case are symetrical and we are left with three use cases:
+
+h3. Member A has a file that Member B has not
+
+This case can arise in two situations:
+
+# Member A has added the file @a@ and Member B didn't added the file yet. The solution is to push the file to Member B
+# Member B deleted the file while being offline. The solution is to delete to file on Member A
+
+As this can't be decided automatically both members have to acknowledge the changes to the file system.
+
+h3. Member A has a file which Member B also has
+
+In this case we don't have to do anything.
+
+h3. Member A has a file that is older than the file that Member B has
+
+Again the solution seems to push the changes to Member B. But Member A might have deleted the file while being offline and exchanged it with another with the same name or just an older copy of the same file. The date of the file doesn't reflect the current state.
+
+The solution is to manually find a state on which both users agree on.  This means that each difference has to be acknowledged.
+
+h2. Hot synchronization phase
+
+Once both users have established a state of their files on which they both agree on. Every change to the respective filesytem can be pushed directly to the other particpating members.
+
+
+
+
