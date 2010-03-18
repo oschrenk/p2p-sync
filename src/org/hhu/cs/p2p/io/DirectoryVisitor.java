@@ -10,7 +10,11 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.log4j.Logger;
+
 public class DirectoryVisitor implements FileVisitor<Path> {
+
+	private static Logger logger = Logger.getLogger(DirectoryVisitor.class);
 
 	private static final String DIGEST_ALGORITHM = "SHA1";
 
@@ -47,17 +51,17 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 
 	@Override
 	public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) {
-		System.out.print("Visting and analyzing "
-				+ file.toAbsolutePath().toString() + " ...");
+		logger.info("Visting and analyzing " + file.toAbsolutePath().toString()
+				+ " ...");
 		try {
 			Path absoluteFile = file.toAbsolutePath();
 			fileIndex.put(parentDirectory.relativize(file.toAbsolutePath())
 					.toString(), new FileAttributes(attributes, Hash
 					.calculateHash(messageDigest, file)));
 		} catch (IOException e) {
-			System.err.println(e.getMessage());
+			logger.error(e.getMessage());
 		}
-		System.out.println("done.");
+		logger.info("done.");
 		return CONTINUE;
 	}
 

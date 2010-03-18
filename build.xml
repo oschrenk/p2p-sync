@@ -1,10 +1,12 @@
-<project name="peer2peer-sync" default="dist" basedir=".">
+<project name="p2p-sync" default="dist" basedir=".">
 
 	<property name="src" location="src" />
-	<property name="examples" location="examples" />
 	<property name="lib" location="lib" />
 	<property name="build" location="build" />
 	<property name="dist" location="dist" />
+
+	<property name="log4j" value="log4j.properties" />
+	<property name="org.hhu.cs.p2p.io" value="org/hhu/cs/p2p/io" />
 
 	<target name="init">
 		<mkdir dir="${build}" />
@@ -13,7 +15,8 @@
 	<target name="compile" depends="init" description="compile the source ">
 		<javac destdir="${build}">
 			<src path="${src}" />
-			<src path="${examples}" />
+			<include name="**" />
+			<include name="**/.properties" />
 			<classpath>
 				<fileset dir="${lib}">
 					<include name="**.*jar" />
@@ -23,6 +26,8 @@
 	</target>
 
 	<target name="dist" depends="compile" description="generate the distribution">
+		<copy file="${lib}/${log4j}" tofile="${dist}/${log4j}" />
+
 		<copy todir="${dist}/lib">
 			<fileset dir="${lib}" />
 		</copy>

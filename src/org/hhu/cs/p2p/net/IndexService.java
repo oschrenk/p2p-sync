@@ -1,5 +1,6 @@
 package org.hhu.cs.p2p.net;
 
+import org.apache.log4j.Logger;
 import org.hhu.cs.p2p.io.DirectoryWatcher;
 
 import com.hazelcast.core.EntryEvent;
@@ -9,22 +10,30 @@ import com.hazelcast.core.IMap;
 
 public class IndexService implements Runnable {
 
-	private final IMap<String, String> map = Hazelcast.getMap("global-index");
+	private Logger logger = Logger.getLogger("wagga");
+
+	private IMap<String, String> map;
 
 	private DirectoryWatcher directoryWatcher;
 
 	public IndexService(DirectoryWatcher directoryWatcher) {
-		Hazelcast.getCluster().addMembershipListener(
-				new SyncMembershipListener());
+		logger.info("Index Service created.");
 
-		Hazelcast.getCluster().getMembers();
+		map = Hazelcast.getMap("global-index");
+
+		logger.info("after Index Service created.");
+		// Hazelcast.getCluster().addMembershipListener(
+		// new SyncMembershipListener());
+
+		// Hazelcast.getCluster().getMembers();
 
 		this.directoryWatcher = directoryWatcher;
-		this.map.addEntryListener(new ServiceCallback(), true);
+		// this.map.addEntryListener(new ServiceCallback(), true);
 	}
 
 	@Override
 	public void run() {
+		logger.info("Index Service running.");
 		new Thread(directoryWatcher).start();
 	}
 

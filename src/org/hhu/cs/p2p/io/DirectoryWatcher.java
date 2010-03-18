@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
 
 public class DirectoryWatcher implements Runnable {
 
-	static final Logger logger = Logger.getLogger(DirectoryWatcher.class);
+	private static final Logger logger = Logger.getLogger(DirectoryWatcher.class);
 
 	private final WatchService watchService;
 	private final Path directory;
@@ -35,8 +35,7 @@ public class DirectoryWatcher implements Runnable {
 		Index index = visitor.getIndex();
 
 		for (String path : index.keySet()) {
-			System.out
-					.println(path + " hashes to " + index.get(path).getHash());
+			logger.info(path + " hashes to " + index.get(path).getHash());
 		}
 
 		directory.register(watchService, ENTRY_CREATE, ENTRY_MODIFY,
@@ -46,6 +45,7 @@ public class DirectoryWatcher implements Runnable {
 	}
 
 	public void run() {
+		logger.info("started watching on " + directory);
 		try {
 			watch();
 		} catch (IOException e) {
