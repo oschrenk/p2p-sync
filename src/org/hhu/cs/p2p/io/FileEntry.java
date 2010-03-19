@@ -2,13 +2,13 @@ package org.hhu.cs.p2p.io;
 
 import java.nio.file.attribute.BasicFileAttributes;
 
-public class FileAttributes {
+public class FileEntry {
 
 	private BasicFileAttributes attributes;
 
 	private String hash;
 
-	public FileAttributes(BasicFileAttributes attributes, String hash) {
+	public FileEntry(BasicFileAttributes attributes, String hash) {
 		this.attributes = attributes;
 		this.hash = hash;
 	}

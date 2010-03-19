@@ -7,15 +7,15 @@ import java.util.Set;
 
 public class Index {
 
-	private Map<String, FileAttributes> map;
+	private Map<String, FileEntry> map;
 
 	private Path parentDirectory;
 
 	public Index() {
-		this.map = new HashMap<String, FileAttributes>();
+		this.map = new HashMap<String, FileEntry>();
 	}
 
-	public void put(String relativePath, FileAttributes attributes) {
+	public void put(String relativePath, FileEntry attributes) {
 		map.put(relativePath, attributes);
 	}
 
@@ -23,7 +23,7 @@ public class Index {
 		return map.keySet();
 	}
 
-	public FileAttributes get(String key) {
+	public FileEntry get(String key) {
 		return map.get(key);
 	}
 }

@@ -56,7 +56,7 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 		try {
 			Path absoluteFile = file.toAbsolutePath();
 			fileIndex.put(parentDirectory.relativize(file.toAbsolutePath())
-					.toString(), new FileAttributes(attributes, Hash
+					.toString(), new FileEntry(attributes, Hash
 					.calculateHash(messageDigest, file)));
 		} catch (IOException e) {
 			logger.error(e.getMessage());
