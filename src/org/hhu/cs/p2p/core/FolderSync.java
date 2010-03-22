@@ -2,16 +2,29 @@ package org.hhu.cs.p2p.core;
 
 import org.apache.log4j.Logger;
 import org.hhu.cs.p2p.io.DirectoryWatcher;
-import org.hhu.cs.p2p.net.IndexService;
 
 import uk.co.flamingpenguin.jewel.cli.ArgumentValidationException;
 import uk.co.flamingpenguin.jewel.cli.Cli;
 import uk.co.flamingpenguin.jewel.cli.CliFactory;
 
+/**
+ * FolderSync creates a service that watches a directory for changes and
+ * communicates these changes with other computers running the same service on a
+ * local directory of their own.
+ * 
+ * The goal is to sync directories with the help of peer 2 peer technology.
+ * 
+ * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
+ * 
+ */
 public class FolderSync {
 
 	private static Logger logger = Logger.getLogger(FolderSync.class);
 
+	/**
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 
 		// check argument syntax
@@ -41,8 +54,7 @@ public class FolderSync {
 		try {
 			DirectoryWatcher d = new DirectoryWatcher(options
 					.getWatchDirectory());
-			IndexService indexService = new IndexService(d);
-			new Thread(indexService).start();
+			d.run();
 		} catch (Throwable e) {
 			logger.fatal(e);
 		}
