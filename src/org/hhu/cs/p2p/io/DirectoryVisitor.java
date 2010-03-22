@@ -22,7 +22,7 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 
 	private static Logger logger = Logger.getLogger(DirectoryVisitor.class);
 
-	private DirectoryCache directoryCache;
+	private DirectoryIndex directoryIndex;
 
 	private Path parentDirectory;
 
@@ -36,7 +36,7 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 		logger.info("Walking " + parentDirectory);
 
 		this.parentDirectory = parentDirectory.toAbsolutePath();
-		this.directoryCache = new DirectoryCache();
+		this.directoryIndex = new DirectoryIndex();
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 	public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) {
 		logger.info(String.format("Visiting %1s", file.toAbsolutePath()));
 		try {
-			directoryCache.add(parentDirectory
+			directoryIndex.add(parentDirectory
 					.relativize(file.toAbsolutePath()), new FileEntry(
 					attributes, IOUtils.sha1(file)));
 		} catch (IOException e) {
@@ -75,8 +75,8 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 	/**
 	 * @return the index
 	 */
-	public DirectoryCache getDirectoryCache() {
-		return directoryCache;
+	public DirectoryIndex getDirectoryCache() {
+		return directoryIndex;
 	}
 
 }

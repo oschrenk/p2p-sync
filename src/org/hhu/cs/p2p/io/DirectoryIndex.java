@@ -14,18 +14,18 @@ import org.apache.log4j.Logger;
  * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
  * 
  */
-public class DirectoryCache implements Serializable {
+public class DirectoryIndex implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(DirectoryCache.class);
+	private static Logger logger = Logger.getLogger(DirectoryIndex.class);
 
 	private Map<Path, FileEntry> map;
 
 	/**
 	 * Default constructor
 	 */
-	public DirectoryCache() {
+	public DirectoryIndex() {
 		this.map = new HashMap<Path, FileEntry>();
 	}
 

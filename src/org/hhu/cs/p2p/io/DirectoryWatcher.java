@@ -50,7 +50,7 @@ public class DirectoryWatcher implements Runnable {
 
 		DirectoryVisitor visitor = new DirectoryVisitor(directory);
 		Files.walkFileTree(directory, visitor);
-		DirectoryCache directoryCache = visitor.getDirectoryCache();
+		DirectoryIndex directoryIndex = visitor.getDirectoryCache();
 
 		logger.info("Done walking files.");
 
