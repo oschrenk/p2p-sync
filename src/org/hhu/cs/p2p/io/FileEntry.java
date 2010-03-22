@@ -1,8 +1,16 @@
 package org.hhu.cs.p2p.io;
 
+import java.io.Serializable;
 import java.nio.file.attribute.BasicFileAttributes;
 
-public class FileEntry {
+/**
+ * 
+ * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
+ * 
+ */
+public class FileEntry implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private BasicFileAttributes attributes;
 
@@ -29,4 +37,8 @@ public class FileEntry {
 		this.hash = hash;
 	}
 
+	@Override
+	public String toString() {
+		return "FileEntry [attributes=" + attributes + ", hash=" + hash + "]";
+	}
 }

@@ -6,7 +6,6 @@ import static java.nio.file.StandardWatchEventKind.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKind.OVERFLOW;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,44 +16,70 @@ import java.nio.file.WatchService;
 
 import org.apache.log4j.Logger;
 
+/**
+ * 
+ * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
+ * 
+ */
 public class DirectoryWatcher implements Runnable {
 
-	private static final Logger logger = Logger.getLogger(DirectoryWatcher.class);
+	private static final Logger logger = Logger
+			.getLogger(DirectoryWatcher.class);
 
-	private final WatchService watchService;
+	private WatchService watchService;
 	private final Path directory;
 
-	public DirectoryWatcher(Path directory) throws IOException {
+	/**
+	 * Creates
+	 * 
+	 * @param directory
+	 * @throws IOException
+	 */
+	public DirectoryWatcher(Path directory) {
+		logger
+				.info(String.format("Created DirectoryWatcher on %1s",
+						directory));
 		this.directory = directory;
 
-		FileSystem fs = FileSystems.getDefault();
-		watchService = fs.newWatchService();
+		try {
+			watchService = FileSystems.getDefault().newWatchService();
+		} catch (IOException e) {
+			// shouldn't happen
+			logger.fatal("Error retrieving FileSystem.", e);
+		}
 
 		DirectoryVisitor visitor = new DirectoryVisitor(directory);
 		Files.walkFileTree(directory, visitor);
-		Index index = visitor.getIndex();
+		DirectoryCache directoryCache = visitor.getDirectoryCache();
 
-		for (String path : index.keySet()) {
-			logger.info(path + " hashes to " + index.get(path).getHash());
+		logger.info("Done walking files.");
+
+		try {
+			directory.register(watchService, ENTRY_CREATE, ENTRY_MODIFY,
+					ENTRY_DELETE, OVERFLOW);
+		} catch (IOException e) {
+			// shouldn't happen
+			logger.fatal("Error registering WatchService.", e);
 		}
 
-		directory.register(watchService, ENTRY_CREATE, ENTRY_MODIFY,
-				ENTRY_DELETE, OVERFLOW);
-
-		logger.info("registered watchService on " + directory);
+		logger.info(String.format("Registered watchService on %1s", directory));
 	}
 
 	public void run() {
-		logger.info("started watching on " + directory);
+		logger.info(String.format("Started watching on %1s", directory));
 		try {
 			watch();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.fatal(String.format("Error watching %1s", directory), e);
 		}
 	}
 
+	/**
+	 * 
+	 * @throws IOException
+	 */
 	public void watch() throws IOException {
+		logger.info(String.format("Watching %1s", directory));
 
 		for (;;) {
 			WatchKey key;

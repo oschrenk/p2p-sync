@@ -7,31 +7,36 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 import org.apache.log4j.Logger;
+import org.hhu.cs.p2p.util.IOUtils;
 
+/**
+ * 
+ * Traverses a directory and adds them to a {@link DirectoryCache}.
+ * 
+ * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
+ * 
+ */
 public class DirectoryVisitor implements FileVisitor<Path> {
 
 	private static Logger logger = Logger.getLogger(DirectoryVisitor.class);
 
-	private static final String DIGEST_ALGORITHM = "SHA1";
-
-	private Index fileIndex;
-
-	private MessageDigest messageDigest;
+	private DirectoryCache directoryCache;
 
 	private Path parentDirectory;
 
+	/**
+	 * Creates a new {@link DirectoryVisitor}
+	 * 
+	 * @param parentDirectory
+	 *            the root of the directory to traverse
+	 */
 	public DirectoryVisitor(Path parentDirectory) {
+		logger.info("Walking " + parentDirectory);
+
 		this.parentDirectory = parentDirectory.toAbsolutePath();
-		this.fileIndex = new Index();
-		try {
-			this.messageDigest = MessageDigest.getInstance(DIGEST_ALGORITHM);
-		} catch (NoSuchAlgorithmException e) {
-			// doesn't happen
-		}
+		this.directoryCache = new DirectoryCache();
 	}
 
 	@Override
@@ -51,17 +56,14 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 
 	@Override
 	public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) {
-		logger.info("Visting and analyzing " + file.toAbsolutePath().toString()
-				+ " ...");
+		logger.info(String.format("Visiting %1s", file.toAbsolutePath()));
 		try {
-			Path absoluteFile = file.toAbsolutePath();
-			fileIndex.put(parentDirectory.relativize(file.toAbsolutePath())
-					.toString(), new FileEntry(attributes, Hash
-					.calculateHash(messageDigest, file)));
+			directoryCache.add(parentDirectory
+					.relativize(file.toAbsolutePath()), new FileEntry(
+					attributes, IOUtils.sha1(file)));
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
-		logger.info("done.");
 		return CONTINUE;
 	}
 
@@ -70,8 +72,11 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 		return CONTINUE;
 	}
 
-	public Index getIndex() {
-		return fileIndex;
+	/**
+	 * @return the index
+	 */
+	public DirectoryCache getDirectoryCache() {
+		return directoryCache;
 	}
 
 }
