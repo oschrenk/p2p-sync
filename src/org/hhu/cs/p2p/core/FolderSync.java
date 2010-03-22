@@ -1,6 +1,9 @@
 package org.hhu.cs.p2p.core;
 
+import java.io.IOException;
+
 import org.apache.log4j.Logger;
+import org.hhu.cs.p2p.io.DirectoryIndex;
 import org.hhu.cs.p2p.io.DirectoryWatcher;
 
 import uk.co.flamingpenguin.jewel.cli.ArgumentValidationException;
@@ -12,7 +15,7 @@ import uk.co.flamingpenguin.jewel.cli.CliFactory;
  * communicates these changes with other computers running the same service on a
  * local directory of their own.
  * 
- * The goal is to sync directories with the help of peer 2 peer technology.
+ * The goal is to sync directories with the help of p2p technology.
  * 
  * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
  * 
@@ -26,8 +29,9 @@ public class FolderSync {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		logger.info("Starting application.");
 
-		// check argument syntax
+		logger.info("Parsing arguments.");
 		Cli<StartupArguments> cli = null;
 		StartupArguments parsedArguments;
 		try {
@@ -38,7 +42,7 @@ public class FolderSync {
 			return;
 		}
 
-		// check validity
+		logger.info("Validating arguments.");
 		Options options;
 		try {
 			options = new OptionsBuilder().setArguments(parsedArguments)
@@ -52,10 +56,12 @@ public class FolderSync {
 		System.setProperty("hazelcast.logging.type", "log4j");
 
 		try {
-			DirectoryWatcher d = new DirectoryWatcher(options
+			DirectoryIndex directoryIndex = new DirectoryIndex(options
 					.getWatchDirectory());
-			d.run();
-		} catch (Throwable e) {
+			DirectoryWatcher directoryWatcher = new DirectoryWatcher(
+					directoryIndex, options.getWatchDirectory());
+			directoryWatcher.run();
+		} catch (IOException e) {
 			logger.fatal(e);
 		}
 	}

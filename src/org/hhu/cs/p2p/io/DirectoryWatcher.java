@@ -3,16 +3,23 @@ package org.hhu.cs.p2p.io;
 import static java.nio.file.StandardWatchEventKind.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKind.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKind.ENTRY_MODIFY;
-import static java.nio.file.StandardWatchEventKind.OVERFLOW;
 
+import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardWatchEventKind;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.nio.file.attribute.Attributes;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -26,52 +33,67 @@ public class DirectoryWatcher implements Runnable {
 	private static final Logger logger = Logger
 			.getLogger(DirectoryWatcher.class);
 
-	private WatchService watchService;
-	private final Path directory;
+	private final WatchService watchService;
+
+	private final Map<WatchKey, Path> keys;
+
+	private final DirectoryIndex directoryIndex;
+
+	private final Path rootDirectory;
 
 	/**
-	 * Creates
+	 * Creates a service
 	 * 
-	 * @param directory
+	 * @param rootDirectory
 	 * @throws IOException
 	 */
-	public DirectoryWatcher(Path directory) {
-		logger
-				.info(String.format("Created DirectoryWatcher on %1s",
-						directory));
-		this.directory = directory;
+	public DirectoryWatcher(DirectoryIndex directoryIndex, Path rootDirectory)
+			throws IOException {
+		this.watchService = FileSystems.getDefault().newWatchService();
+		this.keys = new HashMap<WatchKey, Path>();
+		this.rootDirectory = rootDirectory;
+		this.directoryIndex = directoryIndex;
+
+		logger.info(String.format("Created DirectoryWatcher on %1s",
+				rootDirectory));
 
 		try {
-			watchService = FileSystems.getDefault().newWatchService();
+			registerRecursively(rootDirectory);
 		} catch (IOException e) {
-			// shouldn't happen
-			logger.fatal("Error retrieving FileSystem.", e);
+			throw new IOException("Error registering WatchService.", e);
 		}
 
-		DirectoryVisitor visitor = new DirectoryVisitor(directory);
-		Files.walkFileTree(directory, visitor);
-		DirectoryIndex directoryIndex = visitor.getDirectoryCache();
-
-		logger.info("Done walking files.");
-
-		try {
-			directory.register(watchService, ENTRY_CREATE, ENTRY_MODIFY,
-					ENTRY_DELETE, OVERFLOW);
-		} catch (IOException e) {
-			// shouldn't happen
-			logger.fatal("Error registering WatchService.", e);
-		}
-
-		logger.info(String.format("Registered watchService on %1s", directory));
+		logger.info(String.format("Registered watchService on %1s",
+				rootDirectory));
 	}
 
 	public void run() {
-		logger.info(String.format("Started watching on %1s", directory));
+		logger.info(String.format("Started watching on %1s", rootDirectory));
 		try {
 			watch();
 		} catch (IOException e) {
-			logger.fatal(String.format("Error watching %1s", directory), e);
+			logger.fatal(String.format("Error watching %1s", rootDirectory), e);
 		}
+	}
+
+	private void register(Path directory) throws IOException {
+		WatchKey key = directory.register(watchService, ENTRY_CREATE,
+				ENTRY_DELETE, ENTRY_MODIFY);
+		keys.put(key, directory);
+	}
+
+	private void registerRecursively(final Path start) throws IOException {
+		Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult preVisitDirectory(Path dir) {
+				try {
+					register(dir);
+				} catch (IOException x) {
+					throw new IOError(x);
+				}
+				return FileVisitResult.CONTINUE;
+			}
+		});
 	}
 
 	/**
@@ -79,7 +101,7 @@ public class DirectoryWatcher implements Runnable {
 	 * @throws IOException
 	 */
 	public void watch() throws IOException {
-		logger.info(String.format("Watching %1s", directory));
+		logger.info(String.format("Watching %1s", rootDirectory));
 
 		for (;;) {
 			WatchKey key;
@@ -95,29 +117,66 @@ public class DirectoryWatcher implements Runnable {
 				@SuppressWarnings("unchecked")
 				WatchEvent<Path> event = (WatchEvent<Path>) e;
 
-				Path fileName = event.context();
-				Path child = directory.resolve(fileName);
-				String contentType = Files.probeContentType(child);
+				Path parentDirectory = keys.get(key);
+				Path child = parentDirectory.resolve(event.context());
 
+			
 				if (e.kind() == StandardWatchEventKind.ENTRY_CREATE) {
-					logger.info("file was created: " + fileName
-							+ " ; contentType: " + contentType);
+					BasicFileAttributes pathAttributes = Attributes
+					.readBasicFileAttributes(child,
+							LinkOption.NOFOLLOW_LINKS);
+					if (logger.isTraceEnabled())
+						logger.trace("Path was created: " + child);
+					if (pathAttributes.isDirectory()) {
+						register(child);
+					} else {
+						directoryIndex.add(child);
+					}
 				} else if (e.kind() == StandardWatchEventKind.ENTRY_MODIFY) {
-					logger.info("file was modified: " + fileName
-							+ " ; contentType: " + contentType);
+					BasicFileAttributes pathAttributes = Attributes
+					.readBasicFileAttributes(child,
+							LinkOption.NOFOLLOW_LINKS);
+					if (logger.isTraceEnabled())
+						logger.trace("Path was modified: " + child);
+
+					if (pathAttributes.isDirectory()) {
+
+					} else {
+						directoryIndex.update(child);
+					}
+
 				} else if (e.kind() == StandardWatchEventKind.ENTRY_DELETE) {
-					logger.info("file was deleted: " + fileName);
+					if (logger.isTraceEnabled())
+						logger.trace("Path was deleted: " + child);
 				} else if (e.kind() == StandardWatchEventKind.OVERFLOW) {
-					logger.info("overflow occurred");
+					logger.info("Overflow occurred");
 					continue;
 				}
 
 				boolean valid = key.reset();
 				if (!valid) {
+					keys.remove(key);
+
+					// all directories are inaccessible
+					if (keys.isEmpty()) {
+						break;
+					}
+
 					logger.info("object no longer registered");
 					break;
 				}
 			}
 		}
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+
+		for (WatchKey key : keys.keySet()) {
+			key.cancel();
+		}
+
+		watchService.close();
 	}
 }

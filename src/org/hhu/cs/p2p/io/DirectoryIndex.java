@@ -1,12 +1,18 @@
 package org.hhu.cs.p2p.io;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.Attributes;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.hhu.cs.p2p.util.IOUtils;
 
 /**
  * Holds the index of all files within a directory
@@ -20,25 +26,44 @@ public class DirectoryIndex implements Serializable {
 
 	private static Logger logger = Logger.getLogger(DirectoryIndex.class);
 
+	private Path rootDirectory;
+
 	private Map<Path, FileEntry> map;
 
 	/**
-	 * Default constructor
+	 * @param rootDirectory
+	 *            the directory to build the index for
 	 */
-	public DirectoryIndex() {
+	public DirectoryIndex(Path rootDirectory) {
+		this.rootDirectory = rootDirectory.toAbsolutePath();
 		this.map = new HashMap<Path, FileEntry>();
+
+		logger.info(String.format("Creating initial index of \"%1s\".",
+				rootDirectory));
+		DirectoryVisitor visitor = new DirectoryVisitor(this, rootDirectory);
+
+		// will block io
+		Files.walkFileTree(rootDirectory, visitor);
+
+		logger.info(String.format("Done creating initial index of \"%1s\".",
+				rootDirectory));
 	}
 
 	/**
 	 * Adds a new entry to the index
 	 * 
-	 * @param relativePath
-	 *            the relativePath (in respect to the directory that is being
-	 *            watched)
+	 * @param path
+	 *            the path (in respect to the directory that is being watched)
 	 * @param entry
 	 *            infos about the entry
+	 * @throws IOException
+	 *             if reading file attributes, or creating SHA-1 won't work
 	 */
-	public void add(Path relativePath, FileEntry entry) {
+	public void add(Path path) throws IOException {
+
+		Path relativePath = rootDirectory.relativize(path);
+		FileEntry entry = new FileEntry(getAttributes(path), IOUtils.sha1(path));
+
 		logger.info(String.format("Adding \"%1s\" with attributes %2s",
 				relativePath, entry));
 		map.put(relativePath, entry);
@@ -47,13 +72,17 @@ public class DirectoryIndex implements Serializable {
 	/**
 	 * Updates an entry in the index with new infos
 	 * 
-	 * @param relativePath
-	 *            the relativePath (in respect to the directory that is being
+	 * @param path
+	 *            the path (in respect to the directory that is being
 	 *            watched)
 	 * @param entry
 	 *            new infos about the entry
+	 * @throws IOException 
 	 */
-	public void update(Path relativePath, FileEntry entry) {
+	public void update(Path path) throws IOException {
+		Path relativePath = rootDirectory.relativize(path.toAbsolutePath());
+		FileEntry entry = new FileEntry(getAttributes(path), IOUtils.sha1(path));
+		
 		logger.info(String.format("Updating \"%1s\" with attributes %2s",
 				relativePath, entry));
 		map.put(relativePath, entry);
@@ -85,5 +114,10 @@ public class DirectoryIndex implements Serializable {
 	 */
 	public FileEntry get(Path key) {
 		return map.get(key);
+	}
+
+	private BasicFileAttributes getAttributes(Path path) throws IOException {
+		return Attributes.readBasicFileAttributes(path,
+				LinkOption.NOFOLLOW_LINKS);
 	}
 }

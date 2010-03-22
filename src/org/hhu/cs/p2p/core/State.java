@@ -28,6 +28,11 @@ public enum State {
 	 * Application is in hot synchronization phasewith a peer, meaning that only
 	 * changes to the index are propagated.
 	 */
-	HOT_SYNC;
+	HOT_SYNC,
+
+	/**
+	 * Undefined state
+	 */
+	UNKNOWN;
 
 }

@@ -9,7 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
 import org.apache.log4j.Logger;
-import org.hhu.cs.p2p.util.IOUtils;
 
 /**
  * 
@@ -24,19 +23,19 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 
 	private DirectoryIndex directoryIndex;
 
-	private Path parentDirectory;
-
 	/**
 	 * Creates a new {@link DirectoryVisitor}
+	 * 
+	 * @param directoryIndex
+	 *            the {@link DirectoryIndex} to hold the index
 	 * 
 	 * @param parentDirectory
 	 *            the root of the directory to traverse
 	 */
-	public DirectoryVisitor(Path parentDirectory) {
+	protected DirectoryVisitor(DirectoryIndex directoryIndex,
+			Path parentDirectory) {
 		logger.info("Walking " + parentDirectory);
-
-		this.parentDirectory = parentDirectory.toAbsolutePath();
-		this.directoryIndex = new DirectoryIndex();
+		this.directoryIndex = directoryIndex;
 	}
 
 	@Override
@@ -56,11 +55,10 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 
 	@Override
 	public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) {
-		logger.info(String.format("Visiting %1s", file.toAbsolutePath()));
+		if (logger.isTraceEnabled())
+			logger.trace(String.format("Visiting %1s", file.toAbsolutePath()));
 		try {
-			directoryIndex.add(parentDirectory
-					.relativize(file.toAbsolutePath()), new FileEntry(
-					attributes, IOUtils.sha1(file)));
+			directoryIndex.add(file);
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
@@ -71,12 +69,4 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 	public FileVisitResult visitFileFailed(Path file, IOException e) {
 		return CONTINUE;
 	}
-
-	/**
-	 * @return the index
-	 */
-	public DirectoryIndex getDirectoryCache() {
-		return directoryIndex;
-	}
-
 }
