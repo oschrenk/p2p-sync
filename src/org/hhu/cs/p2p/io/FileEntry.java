@@ -12,33 +12,9 @@ public class FileEntry implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private BasicFileAttributes attributes;
+	private long lastAccessTime;
 
-	private String hash;
-
-	public FileEntry(BasicFileAttributes attributes, String hash) {
-		this.attributes = attributes;
-		this.hash = hash;
-	}
-
-	public BasicFileAttributes getAttributes() {
-		return attributes;
-	}
-
-	public void setLastModified(BasicFileAttributes attributes) {
-		this.attributes = attributes;
-	}
-
-	public String getHash() {
-		return hash;
-	}
-
-	public void setHash(String hash) {
-		this.hash = hash;
-	}
-
-	@Override
-	public String toString() {
-		return "FileEntry [attributes=" + attributes + ", hash=" + hash + "]";
+	public FileEntry(BasicFileAttributes attributes) {
+		lastAccessTime = attributes.lastAccessTime().toMillis();
 	}
 }

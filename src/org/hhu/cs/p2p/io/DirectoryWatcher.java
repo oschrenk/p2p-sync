@@ -42,7 +42,9 @@ public class DirectoryWatcher implements Runnable {
 	private final Path rootDirectory;
 
 	/**
-	 * Creates a service
+	 * Creates a {@link DirectoryWatcher}
+	 * 
+	 * @param directoryIndex
 	 * 
 	 * @param rootDirectory
 	 * @throws IOException
@@ -120,11 +122,10 @@ public class DirectoryWatcher implements Runnable {
 				Path parentDirectory = keys.get(key);
 				Path child = parentDirectory.resolve(event.context());
 
-			
 				if (e.kind() == StandardWatchEventKind.ENTRY_CREATE) {
 					BasicFileAttributes pathAttributes = Attributes
-					.readBasicFileAttributes(child,
-							LinkOption.NOFOLLOW_LINKS);
+							.readBasicFileAttributes(child,
+									LinkOption.NOFOLLOW_LINKS);
 					if (logger.isTraceEnabled())
 						logger.trace("Path was created: " + child);
 					if (pathAttributes.isDirectory()) {
@@ -134,13 +135,13 @@ public class DirectoryWatcher implements Runnable {
 					}
 				} else if (e.kind() == StandardWatchEventKind.ENTRY_MODIFY) {
 					BasicFileAttributes pathAttributes = Attributes
-					.readBasicFileAttributes(child,
-							LinkOption.NOFOLLOW_LINKS);
+							.readBasicFileAttributes(child,
+									LinkOption.NOFOLLOW_LINKS);
 					if (logger.isTraceEnabled())
 						logger.trace("Path was modified: " + child);
 
 					if (pathAttributes.isDirectory()) {
-
+						// do nothing
 					} else {
 						directoryIndex.update(child);
 					}

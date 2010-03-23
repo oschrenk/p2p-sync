@@ -1,0 +1,3 @@
+#!/bin/sh
+JAR=dist/sync.jar
+java -jar $JAR -p 49155 res/demo/user_b

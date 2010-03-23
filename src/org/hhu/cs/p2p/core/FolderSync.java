@@ -1,10 +1,13 @@
 package org.hhu.cs.p2p.core;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 import org.apache.log4j.Logger;
 import org.hhu.cs.p2p.io.DirectoryIndex;
 import org.hhu.cs.p2p.io.DirectoryWatcher;
+import org.hhu.cs.p2p.net.IndexService;
+import org.hhu.cs.p2p.net.NetworkService;
 
 import uk.co.flamingpenguin.jewel.cli.ArgumentValidationException;
 import uk.co.flamingpenguin.jewel.cli.Cli;
@@ -38,7 +41,7 @@ public class FolderSync {
 			cli = CliFactory.createCli(StartupArguments.class);
 			parsedArguments = cli.parseArguments(args);
 		} catch (ArgumentValidationException e) {
-			logger.fatal(cli.getHelpMessage());
+			logger.fatal(cli.getHelpMessage(), e);
 			return;
 		}
 
@@ -56,11 +59,15 @@ public class FolderSync {
 		System.setProperty("hazelcast.logging.type", "log4j");
 
 		try {
-			DirectoryIndex directoryIndex = new DirectoryIndex(options
-					.getWatchDirectory());
+			Path directory = options.getWatchDirectory();
+
+			DirectoryIndex directoryIndex = new DirectoryIndex(directory);
 			DirectoryWatcher directoryWatcher = new DirectoryWatcher(
-					directoryIndex, options.getWatchDirectory());
-			directoryWatcher.run();
+					directoryIndex, directory);
+			new Thread(directoryWatcher).start();
+			IndexService indexService = new IndexService(directoryIndex);
+			indexService.run();
+			NetworkService networkService = new NetworkService(directory);
 		} catch (IOException e) {
 			logger.fatal(e);
 		}

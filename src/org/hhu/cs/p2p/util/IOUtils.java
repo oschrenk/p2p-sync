@@ -3,6 +3,7 @@ package org.hhu.cs.p2p.util;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -15,7 +16,22 @@ import java.util.Formatter;
  */
 public class IOUtils {
 
+	private static final String SLASH = "/";
+
 	private static final String DIGEST_ALGORITHM_SHA1 = "SHA1";
+
+	/**
+	 * Returns a path without the filename
+	 * 
+	 * @param path
+	 *            path with filename
+	 * @return path without filename
+	 */
+	public static Path pathWithoutFilename(Path path) {
+		String fullPath = path.toString();
+		return Paths
+				.get(fullPath.substring(0, fullPath.lastIndexOf(SLASH) + 1));
+	}
 
 	/**
 	 * Returns the SHA-1 hash value of the contents of the given path

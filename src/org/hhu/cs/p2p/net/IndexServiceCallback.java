@@ -1,12 +1,23 @@
 package org.hhu.cs.p2p.net;
 
+import org.apache.log4j.Logger;
+
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 
-public class IndexServiceCallback implements EntryListener {
+/**
+ * @author Oliver
+ * 
+ * @param <Path>
+ * @param <FileEntry>
+ */
+public class IndexServiceCallback<Path, FileEntry> implements
+		EntryListener<Path, FileEntry> {
 
-	public void entryAdded(EntryEvent event) {
-		event.getKey();
+	private static Logger logger = Logger.getLogger(IndexServiceCallback.class);
+
+	public void entryAdded(EntryEvent<Path, FileEntry> event) {
+		logger.info(String.format("Adding entry %1s", event.getKey()));
 
 		// who added the file?
 		// ignore if added via network
@@ -18,28 +29,20 @@ public class IndexServiceCallback implements EntryListener {
 		// open new connection for file transfer
 
 		// handle callback when finished
-
-		// write the file to temp dir, copy it next to target and switch
-
-		// optimize
-		// try to collect multiple changes?
-		// keep old copies as shadows?
-
 	}
 
-	public void entryRemoved(EntryEvent event) {
-		// delete file
+	public void entryRemoved(EntryEvent<Path, FileEntry> event) {
+		logger.info(String.format("Deleting entry %1s", event.getKey()));
 	}
 
-	public void entryUpdated(EntryEvent event) {
+	public void entryUpdated(EntryEvent<Path, FileEntry> event) {
+		logger.info(String.format("Updating entry %1s", event.getKey()));
 		// handle like entry added
-
-		// if time try to build binary diff
-
 	}
 
-	// TODO doc what is the difference to remove
-	public void entryEvicted(EntryEvent event) {
-		entryRemoved(event);
+	@Override
+	public void entryEvicted(EntryEvent<Path, FileEntry> event) {
+		logger.info(String.format("Evecting entry %1s", event.getKey()));
 	}
+
 }

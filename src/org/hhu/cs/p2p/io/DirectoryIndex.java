@@ -8,11 +8,11 @@ import java.nio.file.Path;
 import java.nio.file.attribute.Attributes;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.hhu.cs.p2p.util.IOUtils;
 
 /**
  * Holds the index of all files within a directory
@@ -62,7 +62,7 @@ public class DirectoryIndex implements Serializable {
 	public void add(Path path) throws IOException {
 
 		Path relativePath = rootDirectory.relativize(path);
-		FileEntry entry = new FileEntry(getAttributes(path), IOUtils.sha1(path));
+		FileEntry entry = new FileEntry(getAttributes(path));
 
 		logger.info(String.format("Adding \"%1s\" with attributes %2s",
 				relativePath, entry));
@@ -73,16 +73,15 @@ public class DirectoryIndex implements Serializable {
 	 * Updates an entry in the index with new infos
 	 * 
 	 * @param path
-	 *            the path (in respect to the directory that is being
-	 *            watched)
+	 *            the path (in respect to the directory that is being watched)
 	 * @param entry
 	 *            new infos about the entry
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void update(Path path) throws IOException {
 		Path relativePath = rootDirectory.relativize(path.toAbsolutePath());
-		FileEntry entry = new FileEntry(getAttributes(path), IOUtils.sha1(path));
-		
+		FileEntry entry = new FileEntry(getAttributes(path));
+
 		logger.info(String.format("Updating \"%1s\" with attributes %2s",
 				relativePath, entry));
 		map.put(relativePath, entry);
@@ -119,5 +118,12 @@ public class DirectoryIndex implements Serializable {
 	private BasicFileAttributes getAttributes(Path path) throws IOException {
 		return Attributes.readBasicFileAttributes(path,
 				LinkOption.NOFOLLOW_LINKS);
+	}
+
+	/**
+	 * @return the iterator of the map that holds the paths
+	 */
+	public Iterator<Path> iterator() {
+		return map.keySet().iterator();
 	}
 }

@@ -1,5 +1,0 @@
-#!/bin/sh
-
-JAR=dist/sync.jar
-
-java -jar $JAR $1 

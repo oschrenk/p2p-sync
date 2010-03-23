@@ -1,6 +1,9 @@
 package org.hhu.cs.p2p.core;
 
+import org.hhu.cs.p2p.net.NetworkService;
+
 import uk.co.flamingpenguin.jewel.cli.CommandLineInterface;
+import uk.co.flamingpenguin.jewel.cli.Option;
 import uk.co.flamingpenguin.jewel.cli.Unparsed;
 
 /**
@@ -12,6 +15,15 @@ import uk.co.flamingpenguin.jewel.cli.Unparsed;
  */
 @CommandLineInterface(application = "sync")
 public interface StartupArguments {
+
+	/**
+	 * Returns the port of the embedded webserver to serve files
+	 * 
+	 * @return the port of the embedded webserver to serve files
+	 */
+	@Option(shortName = "p", longName = "port", defaultValue = NetworkService.DEFAULT_PORT
+			+ "", description = "the port of the embedded webserver to serve files")
+	int getPort();
 
 	/**
 	 * Returns the directory that should be watched

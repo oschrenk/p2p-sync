@@ -1,5 +1,8 @@
 package org.hhu.cs.p2p.core;
 
+import static java.nio.file.AccessMode.READ;
+import static java.nio.file.AccessMode.WRITE;
+
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -7,7 +10,6 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.Attributes;
 import java.nio.file.attribute.BasicFileAttributes;
-import static java.nio.file.AccessMode.*;
 
 /**
  * Creates valid options for the startup of the sync application
@@ -17,7 +19,12 @@ import static java.nio.file.AccessMode.*;
  */
 public class OptionsBuilder {
 
+	private static final int MIN_PORT = 49152;
+	private static final int MAX_PORT = 65535;
+
 	private String directory;
+
+	private int port;
 
 	/**
 	 * Commodity method for setting all arguments at once using the JewelCLI
@@ -29,6 +36,7 @@ public class OptionsBuilder {
 	 */
 	public OptionsBuilder setArguments(StartupArguments arguments) {
 		this.directory = arguments.getDirectory();
+		this.port = arguments.getPort();
 		return this;
 	}
 
@@ -40,9 +48,12 @@ public class OptionsBuilder {
 	 *             if the used arguments aren't semenatically correct
 	 */
 	public Options build() throws IllegalArgumentException {
-		Path watchDirectory = getWatchDirectory(directory);
+		Options o = new Options();
 
-		return new Options(watchDirectory);
+		o.setWatchDirectory(getWatchDirectory(directory));
+		o.setPort(getPort(port));
+
+		return o;
 	}
 
 	/**
@@ -74,5 +85,23 @@ public class OptionsBuilder {
 					+ "\" is not a valid directory.");
 		}
 		return directory.toAbsolutePath();
+	}
+
+	/**
+	 * Returns the port
+	 * 
+	 * @param port
+	 *            the port number
+	 * @return unchanged port number
+	 * @throws IllegalArgumentException
+	 *             if port is bot with in the dynamic port range recommended by
+	 *             IANA
+	 */
+	private int getPort(int port) throws IllegalArgumentException {
+		if (port < MIN_PORT || port > MAX_PORT)
+			throw new IllegalArgumentException(String.format(
+					"%1s is not a valid port. Has to between %2s and %3s.",
+					port, MIN_PORT, MAX_PORT));
+		return port;
 	}
 }

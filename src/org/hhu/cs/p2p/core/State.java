@@ -1,7 +1,7 @@
 package org.hhu.cs.p2p.core;
 
 /**
- * Hols the state of the application.
+ * Holds the state of the application.
  * 
  * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
  * 
