@@ -21,7 +21,7 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 
 	private static Logger logger = Logger.getLogger(DirectoryVisitor.class);
 
-	private DirectoryIndex directoryIndex;
+	private LocalIndex localIndex;
 
 	/**
 	 * Creates a new {@link DirectoryVisitor}
@@ -32,10 +32,9 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 	 * @param parentDirectory
 	 *            the root of the directory to traverse
 	 */
-	protected DirectoryVisitor(DirectoryIndex directoryIndex,
-			Path parentDirectory) {
+	protected DirectoryVisitor(LocalIndex directoryIndex, Path parentDirectory) {
 		logger.info("Walking " + parentDirectory);
-		this.directoryIndex = directoryIndex;
+		this.localIndex = directoryIndex;
 	}
 
 	@Override
@@ -58,7 +57,7 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 		if (logger.isTraceEnabled())
 			logger.trace(String.format("Visiting %1s", file.toAbsolutePath()));
 		try {
-			directoryIndex.add(file);
+			localIndex.add(file);
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}

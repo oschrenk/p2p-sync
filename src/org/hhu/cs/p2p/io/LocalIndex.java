@@ -8,9 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.Attributes;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -20,11 +18,11 @@ import org.apache.log4j.Logger;
  * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
  * 
  */
-public class DirectoryIndex implements Serializable {
+public class LocalIndex implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(DirectoryIndex.class);
+	private static Logger logger = Logger.getLogger(LocalIndex.class);
 
 	private Path rootDirectory;
 
@@ -34,7 +32,7 @@ public class DirectoryIndex implements Serializable {
 	 * @param rootDirectory
 	 *            the directory to build the index for
 	 */
-	public DirectoryIndex(Path rootDirectory) {
+	public LocalIndex(Path rootDirectory) {
 		this.rootDirectory = rootDirectory.toAbsolutePath();
 		this.map = new HashMap<Path, FileEntry>();
 
@@ -59,7 +57,7 @@ public class DirectoryIndex implements Serializable {
 	 * @throws IOException
 	 *             if reading file attributes, or creating SHA-1 won't work
 	 */
-	public void add(Path path) throws IOException {
+	public synchronized void add(Path path) throws IOException {
 
 		Path relativePath = rootDirectory.relativize(path);
 		FileEntry entry = new FileEntry(getAttributes(path));
@@ -78,7 +76,7 @@ public class DirectoryIndex implements Serializable {
 	 *            new infos about the entry
 	 * @throws IOException
 	 */
-	public void update(Path path) throws IOException {
+	public synchronized void update(Path path) throws IOException {
 		Path relativePath = rootDirectory.relativize(path.toAbsolutePath());
 		FileEntry entry = new FileEntry(getAttributes(path));
 
@@ -94,16 +92,9 @@ public class DirectoryIndex implements Serializable {
 	 *            the relativePath (in respect to the directory that is being
 	 *            watched)
 	 */
-	public void delete(Path relativePath) {
+	public synchronized void delete(Path relativePath) {
 		logger.info(String.format("Deleting \"%1s\".", relativePath));
 		map.remove(relativePath);
-	}
-
-	/**
-	 * @return all relative paths in this index
-	 */
-	public Set<Path> paths() {
-		return map.keySet();
 	}
 
 	/**
@@ -121,9 +112,9 @@ public class DirectoryIndex implements Serializable {
 	}
 
 	/**
-	 * @return the iterator of the map that holds the paths
+	 * @return the map
 	 */
-	public Iterator<Path> iterator() {
-		return map.keySet().iterator();
+	public Map<Path, FileEntry> map() {
+		return map;
 	}
 }

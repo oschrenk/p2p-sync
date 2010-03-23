@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import org.apache.log4j.Logger;
-import org.hhu.cs.p2p.io.DirectoryIndex;
+import org.hhu.cs.p2p.index.ChangeService;
 import org.hhu.cs.p2p.io.DirectoryWatcher;
-import org.hhu.cs.p2p.net.IndexService;
+import org.hhu.cs.p2p.io.LocalIndex;
 import org.hhu.cs.p2p.net.NetworkService;
+import org.hhu.cs.p2p.net.RemoteIndex;
 
 import uk.co.flamingpenguin.jewel.cli.ArgumentValidationException;
 import uk.co.flamingpenguin.jewel.cli.Cli;
@@ -61,13 +62,31 @@ public class FolderSync {
 		try {
 			Path directory = options.getWatchDirectory();
 
-			DirectoryIndex directoryIndex = new DirectoryIndex(directory);
+			// will block for initial indexing
+			LocalIndex directoryIndex = new LocalIndex(directory);
+
+			// will only produce
 			DirectoryWatcher directoryWatcher = new DirectoryWatcher(
 					directoryIndex, directory);
+
+			// producer, consumer
+			RemoteIndex remoteIndex = new RemoteIndex();
+
+			// change service is needed right away, start it
+			ChangeService changeService = new ChangeService();
+			new Thread(changeService).start();
+
+			Registry registry = Registry.getInstance();
+			registry.setDirectoryIndex(directoryIndex);
+			registry.setRemoteIndex(remoteIndex);
+			registry.setChangeService(changeService);
+
+			// startup sequence
+			new Startup().run();
+
 			new Thread(directoryWatcher).start();
-			IndexService indexService = new IndexService(directoryIndex);
-			indexService.run();
-			NetworkService networkService = new NetworkService(directory);
+			new NetworkService(directory).start();
+
 		} catch (IOException e) {
 			logger.fatal(e);
 		}

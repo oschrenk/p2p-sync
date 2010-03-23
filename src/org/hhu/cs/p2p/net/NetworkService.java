@@ -15,12 +15,18 @@ import com.sun.grizzly.http.embed.GrizzlyWebServer;
  */
 public class NetworkService {
 
+	private static Logger logger = Logger.getLogger(NetworkService.class);
+
 	/**
 	 * Default port for the embedded Grizzly server
 	 */
 	public static final int DEFAULT_PORT = 49154;
 
-	private static Logger logger = Logger.getLogger(NetworkService.class);
+	private GrizzlyWebServer ws;
+
+	private int port;
+
+	private Path rootDirectory;
 
 	/**
 	 * Creates a new Grizzly running on the default port.
@@ -41,8 +47,15 @@ public class NetworkService {
 	 *            the directory to serve
 	 */
 	public NetworkService(int port, Path rootDirectory) {
-		GrizzlyWebServer ws = new GrizzlyWebServer(port, rootDirectory
-				.toString());
+		this.port = port;
+		this.rootDirectory = rootDirectory;
+		this.ws = new GrizzlyWebServer(port, rootDirectory.toString());
+	}
+
+	/**
+	 * Starts the embedded web server
+	 */
+	public void start() {
 		try {
 			ws.start();
 			logger.info(String.format(
@@ -51,6 +64,12 @@ public class NetworkService {
 		} catch (IOException e) {
 			logger.fatal("Grizzly couldn't start.", e);
 		}
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		ws.stop();
+		super.finalize();
 	}
 
 }

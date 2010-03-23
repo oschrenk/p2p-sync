@@ -37,24 +37,24 @@ public class DirectoryWatcher implements Runnable {
 
 	private final Map<WatchKey, Path> keys;
 
-	private final DirectoryIndex directoryIndex;
+	private final LocalIndex localIndex;
 
 	private final Path rootDirectory;
 
 	/**
 	 * Creates a {@link DirectoryWatcher}
 	 * 
-	 * @param directoryIndex
+	 * @param localIndex
 	 * 
 	 * @param rootDirectory
 	 * @throws IOException
 	 */
-	public DirectoryWatcher(DirectoryIndex directoryIndex, Path rootDirectory)
+	public DirectoryWatcher(LocalIndex localIndex, Path rootDirectory)
 			throws IOException {
 		this.watchService = FileSystems.getDefault().newWatchService();
 		this.keys = new HashMap<WatchKey, Path>();
 		this.rootDirectory = rootDirectory;
-		this.directoryIndex = directoryIndex;
+		this.localIndex = localIndex;
 
 		logger.info(String.format("Created DirectoryWatcher on %1s",
 				rootDirectory));
@@ -131,7 +131,7 @@ public class DirectoryWatcher implements Runnable {
 					if (pathAttributes.isDirectory()) {
 						register(child);
 					} else {
-						directoryIndex.add(child);
+						localIndex.add(child);
 					}
 				} else if (e.kind() == StandardWatchEventKind.ENTRY_MODIFY) {
 					BasicFileAttributes pathAttributes = Attributes
@@ -143,7 +143,7 @@ public class DirectoryWatcher implements Runnable {
 					if (pathAttributes.isDirectory()) {
 						// do nothing
 					} else {
-						directoryIndex.update(child);
+						localIndex.update(child);
 					}
 
 				} else if (e.kind() == StandardWatchEventKind.ENTRY_DELETE) {
