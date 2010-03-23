@@ -5,8 +5,8 @@ import java.nio.file.Path;
 
 import org.apache.log4j.Logger;
 import org.hhu.cs.p2p.index.ChangeService;
-import org.hhu.cs.p2p.io.DirectoryWatcher;
 import org.hhu.cs.p2p.io.LocalIndex;
+import org.hhu.cs.p2p.io.LocalIndexWatcher;
 import org.hhu.cs.p2p.net.NetworkService;
 import org.hhu.cs.p2p.net.RemoteIndex;
 
@@ -58,7 +58,7 @@ public class FolderSync {
 
 		// redirect hazelcast logging output
 		System.setProperty("hazelcast.logging.type", "log4j");
-
+		Registry registry = Registry.getInstance();
 		try {
 			Path directory = options.getWatchDirectory();
 
@@ -66,7 +66,7 @@ public class FolderSync {
 			LocalIndex localIndex = new LocalIndex(directory);
 
 			// will only produce
-			DirectoryWatcher directoryWatcher = new DirectoryWatcher(
+			LocalIndexWatcher directoryWatcher = new LocalIndexWatcher(
 					localIndex, directory);
 
 			// producer, consumer
@@ -76,7 +76,6 @@ public class FolderSync {
 			ChangeService changeService = new ChangeService();
 			new Thread(changeService).start();
 
-			Registry registry = Registry.getInstance();
 			registry.setLocalIndex(localIndex);
 			registry.setRemoteIndex(remoteIndex);
 			registry.setChangeService(changeService);

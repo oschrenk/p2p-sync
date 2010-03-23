@@ -28,10 +28,10 @@ import org.apache.log4j.Logger;
  * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
  * 
  */
-public class DirectoryWatcher implements Runnable {
+public class LocalIndexWatcher implements Runnable {
 
 	private static final Logger logger = Logger
-			.getLogger(DirectoryWatcher.class);
+			.getLogger(LocalIndexWatcher.class);
 
 	private final WatchService watchService;
 
@@ -49,7 +49,7 @@ public class DirectoryWatcher implements Runnable {
 	 * @param rootDirectory
 	 * @throws IOException
 	 */
-	public DirectoryWatcher(LocalIndex localIndex, Path rootDirectory)
+	public LocalIndexWatcher(LocalIndex localIndex, Path rootDirectory)
 			throws IOException {
 		this.watchService = FileSystems.getDefault().newWatchService();
 		this.keys = new HashMap<WatchKey, Path>();
