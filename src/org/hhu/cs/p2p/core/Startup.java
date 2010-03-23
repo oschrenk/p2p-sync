@@ -11,8 +11,8 @@ import org.hhu.cs.p2p.index.ChangeService;
 import org.hhu.cs.p2p.index.ConflictResolver;
 import org.hhu.cs.p2p.index.LocalWinsConflictResolver;
 import org.hhu.cs.p2p.index.TreeConflict;
-import org.hhu.cs.p2p.io.FileEntry;
 import org.hhu.cs.p2p.io.LocalIndex;
+import org.hhu.cs.p2p.io.PathAttributes;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.IMap;
@@ -32,7 +32,7 @@ public class Startup {
 
 		logger.info("Getting hazelcast map.");
 
-		IMap<String, FileEntry> map = Hazelcast.getMap("p2p");
+		IMap<String, PathAttributes> map = Hazelcast.getMap("p2p");
 
 		Set<Member> members = Hazelcast.getCluster().getMembers();
 		if (members.size() == 1) {

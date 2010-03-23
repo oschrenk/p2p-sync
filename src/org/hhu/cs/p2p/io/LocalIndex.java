@@ -26,7 +26,7 @@ public class LocalIndex implements Serializable {
 
 	private Path rootDirectory;
 
-	private Map<Path, FileEntry> map;
+	private Map<Path, PathAttributes> map;
 
 	/**
 	 * @param rootDirectory
@@ -34,7 +34,7 @@ public class LocalIndex implements Serializable {
 	 */
 	public LocalIndex(Path rootDirectory) {
 		this.rootDirectory = rootDirectory.toAbsolutePath();
-		this.map = new HashMap<Path, FileEntry>();
+		this.map = new HashMap<Path, PathAttributes>();
 
 		logger.info(String.format("Creating initial index of \"%1s\".",
 				rootDirectory));
@@ -60,7 +60,7 @@ public class LocalIndex implements Serializable {
 	public synchronized void add(Path path) throws IOException {
 
 		Path relativePath = rootDirectory.relativize(path);
-		FileEntry entry = new FileEntry(getAttributes(path));
+		PathAttributes entry = new PathAttributes(getAttributes(path));
 
 		logger.info(String.format("Adding \"%1s\" with attributes %2s",
 				relativePath, entry));
@@ -78,7 +78,7 @@ public class LocalIndex implements Serializable {
 	 */
 	public synchronized void update(Path path) throws IOException {
 		Path relativePath = rootDirectory.relativize(path.toAbsolutePath());
-		FileEntry entry = new FileEntry(getAttributes(path));
+		PathAttributes entry = new PathAttributes(getAttributes(path));
 
 		logger.info(String.format("Updating \"%1s\" with attributes %2s",
 				relativePath, entry));
@@ -100,9 +100,9 @@ public class LocalIndex implements Serializable {
 	/**
 	 * @param key
 	 *            the relative path
-	 * @return the infos about the file ath that path
+	 * @return the path attributes
 	 */
-	public FileEntry get(Path key) {
+	public PathAttributes get(Path key) {
 		return map.get(key);
 	}
 
@@ -114,7 +114,7 @@ public class LocalIndex implements Serializable {
 	/**
 	 * @return the map
 	 */
-	public Map<Path, FileEntry> map() {
+	public Map<Path, PathAttributes> map() {
 		return map;
 	}
 }

@@ -10,7 +10,7 @@ import java.nio.file.attribute.BasicFileAttributes;
  * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
  * 
  */
-public class FileEntry implements Serializable {
+public class PathAttributes implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -24,7 +24,7 @@ public class FileEntry implements Serializable {
 	 * @param attributes
 	 *            {@link BasicFileAttributes} of the {@link Path}
 	 */
-	public FileEntry(BasicFileAttributes attributes) {
+	public PathAttributes(BasicFileAttributes attributes) {
 		this.lastModifiedTime = attributes.lastModifiedTime().toMillis();
 		this.isDirectory = attributes.isDirectory();
 	}

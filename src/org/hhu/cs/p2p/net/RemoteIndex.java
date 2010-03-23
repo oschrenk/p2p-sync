@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.hhu.cs.p2p.io.FileEntry;
+import org.hhu.cs.p2p.io.PathAttributes;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.IMap;
@@ -22,7 +22,7 @@ public class RemoteIndex {
 
 	private static final String MAP_NAME = "p2p";
 
-	private IMap<String, FileEntry> map;
+	private IMap<String, PathAttributes> map;
 
 	/**
 	 * Default constructor
@@ -32,7 +32,8 @@ public class RemoteIndex {
 
 		logger.info("Getting hazelcast map.");
 		map = Hazelcast.getMap(MAP_NAME);
-		map.addEntryListener(new RemoteIndexWatcher<String, FileEntry>(), true);
+		map.addEntryListener(new RemoteIndexWatcher<String, PathAttributes>(),
+				true);
 
 		Set<Member> members = Hazelcast.getCluster().getMembers();
 		Iterator<Member> iter = members.iterator();
