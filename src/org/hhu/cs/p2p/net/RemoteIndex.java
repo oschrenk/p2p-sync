@@ -32,8 +32,7 @@ public class RemoteIndex {
 
 		logger.info("Getting hazelcast map.");
 		map = Hazelcast.getMap(MAP_NAME);
-		map.addEntryListener(new IndexServiceCallback<String, FileEntry>(),
-				true);
+		map.addEntryListener(new RemoteIndexWatcher<String, FileEntry>(), true);
 
 		Set<Member> members = Hazelcast.getCluster().getMembers();
 		Iterator<Member> iter = members.iterator();
