@@ -63,11 +63,11 @@ public class FolderSync {
 			Path directory = options.getWatchDirectory();
 
 			// will block for initial indexing
-			LocalIndex directoryIndex = new LocalIndex(directory);
+			LocalIndex localIndex = new LocalIndex(directory);
 
 			// will only produce
 			DirectoryWatcher directoryWatcher = new DirectoryWatcher(
-					directoryIndex, directory);
+					localIndex, directory);
 
 			// producer, consumer
 			RemoteIndex remoteIndex = new RemoteIndex();
@@ -77,7 +77,7 @@ public class FolderSync {
 			new Thread(changeService).start();
 
 			Registry registry = Registry.getInstance();
-			registry.setDirectoryIndex(directoryIndex);
+			registry.setLocalIndex(localIndex);
 			registry.setRemoteIndex(remoteIndex);
 			registry.setChangeService(changeService);
 

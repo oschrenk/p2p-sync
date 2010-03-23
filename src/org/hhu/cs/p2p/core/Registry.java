@@ -32,6 +32,8 @@ public class Registry {
 
 	private ChangeService changeService;
 
+	private State state;
+
 	/**
 	 * @param changeService
 	 */
@@ -42,7 +44,7 @@ public class Registry {
 	/**
 	 * @param localIndex
 	 */
-	protected void setDirectoryIndex(LocalIndex localIndex) {
+	protected void setLocalIndex(LocalIndex localIndex) {
 		this.localIndex = localIndex;
 	}
 
@@ -72,6 +74,21 @@ public class Registry {
 	 */
 	public ChangeService getChangeService() {
 		return changeService;
+	}
+
+	/**
+	 * @return {@link State} of application
+	 */
+	public State getState() {
+		return state;
+	}
+
+	/**
+	 * @param state
+	 *            {@link State} of application
+	 */
+	public void setState(State state) {
+		this.state = state;
 	}
 
 }
