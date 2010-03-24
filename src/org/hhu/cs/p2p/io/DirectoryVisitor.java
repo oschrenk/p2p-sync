@@ -1,6 +1,7 @@
 package org.hhu.cs.p2p.io;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
+import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -21,7 +22,7 @@ import org.hhu.cs.p2p.local.LocalIndex;
 public class DirectoryVisitor implements FileVisitor<Path> {
 
 	private static Logger logger = Logger.getLogger(DirectoryVisitor.class);
-
+	
 	private LocalIndex localIndex;
 
 	private Path rootDirectory;
@@ -49,6 +50,16 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 
 	@Override
 	public FileVisitResult preVisitDirectory(Path dir) {
+		try {
+			if (dir.isHidden()) {
+				if (logger.isTraceEnabled())
+					logger.trace(String.format("Ignoring %1s", dir));
+				return SKIP_SUBTREE;
+			}
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
+
 		return CONTINUE;
 	}
 
@@ -60,8 +71,15 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 	@Override
 	public FileVisitResult visitFile(Path path, BasicFileAttributes attributes) {
 		if (logger.isTraceEnabled())
-			logger.trace(String.format("Visiting %1s", path.toAbsolutePath()));
+			logger.trace(String.format("Visiting %1s", path));
+
 		try {
+			if (path.isHidden()) {
+				if (logger.isTraceEnabled())
+					logger.trace(String.format("Ignoring %1s", path));
+				return CONTINUE;
+			}
+
 			localIndex.add(rootDirectory.relativize(path));
 		} catch (IOException e) {
 			logger.error(e.getMessage());
