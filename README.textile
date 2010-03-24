@@ -1,6 +1,46 @@
-h1. README
+h1. Folder Sync
 
-h2. Initialization Phase 
+Folder Sync is quick solution if you want to sync up two directories in the same network without hassle. 
+
+Its really good for quickshot syncs, where one party doesn't have any files of the other party. Once the service is set up om both parties, and is kept running, the two directories will keep in sync.
+
+It uses "p2p technology":http://www.hazelcast.com/ to do so. Although not a p2p application in the sense of file sharing applications, but more in the sense of a content delayed networks.
+
+h2. Development
+
+Folder Sync uses JDK 7 and the following frameworks:
+
+* "Commons Logging":http://commons.apache.org/logging/
+* "Grizzly HTTP Webserver 1.9.18":https://grizzly.dev.java.net/
+* "Hazelcast 1.8.2":http://www.hazelcast.com/
+* "HttpClient 4.0.1":http://hc.apache.org/httpcomponents-client/index.html
+* "JewelCLI 0.6":http://jewelcli.sourceforge.net/
+* "Log4J 1.2.15":http://logging.apache.org/log4j/
+
+h3. Prerequisites
+
+* JDK 7 (the application uses NIO.2) - JDK 7 is still under development, you can get early releases for a few platforms "here":http://download.java.net/jdk7/. If you run Mac OS X - you have to compile it yourself.
+* Ant - To create the distribution
+
+h3. Building the Application
+
+bc. $ git clone git@github.com:oschrenk/p2p-sync.git
+$ cd p2p-sync
+$ ant
+
+h2. Usage
+
+h2. Running the application
+
+bc. $ java -jar dist/sync.jar /path/to/directory/to/watch
+
+You can specify the port under which the files are offered, by using the @-p@ option
+
+bc. $ java -jar dist/sync.jar -p 49154 /path/to/directory/to/watch
+
+h2. Background
+
+h3. Initialization Phase 
 
 The initialization phase takes place when a new member joins the network and it has to pair up with a preexisting member, let's call him member A, in order to sync the directory being watched. The new member, let's call him B, hasn't synchronized before but may already have some files in that directory.
 
@@ -21,7 +61,7 @@ Let's consider the following simple scenario, where we have to sync two director
 
 The first and the fifth, and respectively the third and foruth case are symetrical and we are left with three use cases:
 
-h3. Member A has a file that Member B has not
+h4. Member A has a file that Member B has not
 
 This case can arise in two situations:
 
@@ -30,20 +70,46 @@ This case can arise in two situations:
 
 As this can't be decided automatically both members have to acknowledge the changes to the file system.
 
-h3. Member A has a file which Member B also has
+h4. Member A has a file which Member B also has
 
 In this case we don't have to do anything.
 
-h3. Member A has a file that is older than the file that Member B has
+h4. Member A has a file that is older than the file that Member B has
 
 Again the solution seems to push the changes to Member B. But Member A might have deleted the file while being offline and exchanged it with another with the same name or just an older copy of the same file. The date of the file doesn't reflect the current state.
 
 The solution is to manually find a state on which both users agree on.  This means that each difference has to be acknowledged.
 
-h2. Hot synchronization phase
+h3. Hot synchronization phase
 
 Once both users have established a state of their files on which they both agree on. Every change to the respective filesytem can be pushed directly to the other particpating members.
 
+h2. Internals
 
+h3. Messages
 
+h4. LocalIndexWatcher
 
+h5. Create.Push
+
+remoteIndex.put (path, info)
+
+h5. Update.Push
+
+remoteIndex.put (path, info)
+
+h5. Delete.Push
+
+remoteIndex.put (path, info)
+
+h4. RemoteIndexWatcher	
+
+h5. Create.Pull
+
+# Get address of member that made change
+# if address == local, ignore next step
+# HttpCLient.get(address, path)
+
+h5. Update.Pull
+
+h5. Delete.Pull
