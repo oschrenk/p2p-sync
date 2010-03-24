@@ -1,6 +1,5 @@
 package org.hhu.cs.p2p.core;
 
-import org.hhu.cs.p2p.index.ChangeService;
 import org.hhu.cs.p2p.local.LocalIndex;
 import org.hhu.cs.p2p.remote.RemoteIndex;
 

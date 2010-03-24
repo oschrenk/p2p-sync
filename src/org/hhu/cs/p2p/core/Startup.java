@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import org.hhu.cs.p2p.index.Analyser;
 import org.hhu.cs.p2p.index.Analysis;
 import org.hhu.cs.p2p.index.Change;
-import org.hhu.cs.p2p.index.ChangeService;
 import org.hhu.cs.p2p.index.ConflictResolver;
 import org.hhu.cs.p2p.index.LocalWinsConflictResolver;
 import org.hhu.cs.p2p.index.TreeConflict;
