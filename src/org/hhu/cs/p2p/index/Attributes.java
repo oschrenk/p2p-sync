@@ -1,6 +1,7 @@
 package org.hhu.cs.p2p.index;
 
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
@@ -18,15 +19,20 @@ public class Attributes implements Serializable {
 
 	private boolean isDirectory;
 
+	private InetSocketAddress address;
+
 	/**
 	 * Construct a new {@link Attributes}
 	 * 
 	 * @param attributes
 	 *            {@link BasicFileAttributes} of the {@link Path}
+	 * @param address
+	 *            the address of the member responsible
 	 */
-	public Attributes(BasicFileAttributes attributes) {
+	public Attributes(BasicFileAttributes attributes, InetSocketAddress address) {
 		this.lastModifiedTime = attributes.lastModifiedTime().toMillis();
 		this.isDirectory = attributes.isDirectory();
+		this.address = address;
 	}
 
 	/**
@@ -42,5 +48,18 @@ public class Attributes implements Serializable {
 	 */
 	public boolean isDirectory() {
 		return isDirectory;
+	}
+
+	/**
+	 * @return the {@link InetSocketAddress} for the member that made the change
+	 */
+	public InetSocketAddress getAddress() {
+		return address;
+	}
+
+	@Override
+	public String toString() {
+		return "Attributes [address=" + address + ", isDirectory="
+				+ isDirectory + ", lastModifiedTime=" + lastModifiedTime + "]";
 	}
 }

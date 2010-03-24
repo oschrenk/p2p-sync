@@ -40,7 +40,7 @@ public class TaskBuilder {
 		case PUSH:
 			return buildPushTask(change);
 		case PULL:
-			throw new IllegalArgumentException("Not yet implemented");
+			return buildPullTask(change);
 
 		default:
 			throw new IllegalArgumentException("Guru Meditation Failure.");
@@ -60,12 +60,16 @@ public class TaskBuilder {
 			throw new IllegalArgumentException("Guru Meditation Failure.");
 		}
 	}
-	
+
 	private Task buildPullTask(Change change) {
 		switch (change.getType()) {
 		case CREATE:
 			return new CreatePullTask(localIndex, remoteIndex, change.getPath());
-		
+		case UPDATE:
+			return new UpdatePullTask(localIndex, remoteIndex, change.getPath());
+		case DELETE:
+			return new DeletePullTask(localIndex, remoteIndex, change.getPath());
+
 		default:
 			throw new IllegalArgumentException("Guru Meditation Failure.");
 		}

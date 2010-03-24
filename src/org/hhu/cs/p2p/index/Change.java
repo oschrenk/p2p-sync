@@ -1,5 +1,6 @@
 package org.hhu.cs.p2p.index;
 
+import java.net.InetSocketAddress;
 import java.nio.file.Path;
 
 /**
@@ -11,41 +12,53 @@ public class Change {
 
 	private Path path;
 
+	private InetSocketAddress address;
+
 	private ChangeType type;
 
 	private Direction direction;
 
 	/**
 	 * @param path
+	 * @param address
 	 * @param type
 	 * @param direction
 	 */
-	protected Change(Path path, ChangeType type, Direction direction) {
+	public Change(Path path, InetSocketAddress address, ChangeType type,
+			Direction direction) {
 		super();
 		this.path = path;
+		this.address = address;
 		this.type = type;
 		this.direction = direction;
 	}
 
 	/**
-	 * @return
+	 * @return {@link Path}
 	 */
 	public Path getPath() {
 		return path;
 	}
 
 	/**
-	 * @return
+	 * @return {@link ChangeType}
 	 */
 	public ChangeType getType() {
 		return type;
 	}
 
 	/**
-	 * @return
+	 * @return {@link Direction}
 	 */
 	public Direction getDirection() {
 		return direction;
+	}
+
+	/**
+	 * @return {@link InetSocketAddress}
+	 */
+	public InetSocketAddress getAddress() {
+		return address;
 	}
 
 	@Override

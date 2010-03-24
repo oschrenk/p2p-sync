@@ -17,6 +17,10 @@ public class NetworkService {
 
 	private static Logger logger = Logger.getLogger(NetworkService.class);
 
+	private static int CORE_THREADS = 10;
+
+	private static int MAX_THREADS = 50;
+
 	/**
 	 * Default port for the embedded Grizzly server
 	 */
@@ -50,6 +54,8 @@ public class NetworkService {
 		this.port = port;
 		this.rootDirectory = rootDirectory;
 		this.ws = new GrizzlyWebServer(port, rootDirectory.toString());
+		this.ws.setCoreThreads(CORE_THREADS);
+		this.ws.setMaxThreads(MAX_THREADS);
 	}
 
 	/**

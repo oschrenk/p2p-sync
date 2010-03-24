@@ -16,13 +16,21 @@ public class TreeConflict {
 
 	private Existence existence;
 
+	private Attributes localAttributes;
+
+	private Attributes remoteAttributes;
+
 	/**
 	 * @param path
+	 * @param localAttributes
+	 * @param remoteAttributes
 	 * @param existence
 	 */
-	protected TreeConflict(Path path, Existence existence) {
-		super();
+	protected TreeConflict(Path path, Attributes localAttributes,
+			Attributes remoteAttributes, Existence existence) {
 		this.path = path;
+		this.localAttributes = localAttributes;
+		this.remoteAttributes = remoteAttributes;
 		this.existence = existence;
 	}
 
@@ -44,4 +52,24 @@ public class TreeConflict {
 		return existence;
 	}
 
+	/**
+	 * @return
+	 */
+	public Attributes getLocalAttributes() {
+		return localAttributes;
+	}
+
+	/**
+	 * @return
+	 */
+	public Attributes getRemoteAttributes() {
+		return remoteAttributes;
+	}
+
+	@Override
+	public String toString() {
+		return "TreeConflict [path=" + path + ", existence=" + existence
+				+ ", localAttributes=" + localAttributes
+				+ ", remoteAttributes=" + remoteAttributes + "]";
+	}
 }

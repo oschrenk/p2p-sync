@@ -1,12 +1,13 @@
 package org.hhu.cs.p2p.core;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.file.Path;
 
 import org.apache.log4j.Logger;
 import org.hhu.cs.p2p.local.LocalIndex;
 import org.hhu.cs.p2p.local.LocalIndexWatcher;
-import org.hhu.cs.p2p.net.NetworkClient;
 import org.hhu.cs.p2p.net.NetworkService;
 import org.hhu.cs.p2p.remote.RemoteIndex;
 
@@ -33,9 +34,8 @@ public class FolderSync {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		logger.info("Starting application.");
+		logger.info("Application started.");
 
-		logger.info("Parsing arguments.");
 		Cli<StartupArguments> cli = null;
 		StartupArguments parsedArguments;
 		try {
@@ -46,7 +46,6 @@ public class FolderSync {
 			return;
 		}
 
-		logger.info("Validating arguments.");
 		Options options;
 		try {
 			options = new OptionsBuilder().setArguments(parsedArguments)
@@ -59,8 +58,18 @@ public class FolderSync {
 		// redirect hazelcast logging output
 		System.setProperty("hazelcast.logging.type", "log4j");
 		Registry registry = Registry.getInstance();
+
 		try {
 			Path rootDirectory = options.getWatchDirectory();
+
+			// we need the address as hazelcast doesn't offer API
+			registry.setAddress(new InetSocketAddress(InetAddress
+					.getLocalHost(), options.getPort()));
+
+			// root directory is global
+			registry.setRootDirecory(rootDirectory);
+
+			new NetworkService(options.getPort(), rootDirectory).start();
 
 			// will block for initial indexing
 			LocalIndex localIndex = new LocalIndex(rootDirectory);
@@ -73,21 +82,20 @@ public class FolderSync {
 			RemoteIndex remoteIndex = new RemoteIndex();
 
 			// change service is needed right away, start it
-			ChangeService changeService = new ChangeService(localIndex, remoteIndex);
+			ChangeService changeService = new ChangeService(localIndex,
+					remoteIndex);
 			new Thread(changeService).start();
 
-			NetworkClient networkClient = new NetworkClient(rootDirectory);
-			
 			registry.setLocalIndex(localIndex);
 			registry.setRemoteIndex(remoteIndex);
 			registry.setChangeService(changeService);
-			registry.setNetworkClient(networkClient);
+			registry.setAddress(new InetSocketAddress(InetAddress
+					.getLocalHost(), options.getPort()));
 
 			// startup sequence
 			new Startup().run();
 
 			new Thread(directoryWatcher).start();
-			new NetworkService(rootDirectory).start();
 
 		} catch (IOException e) {
 			logger.fatal(e);

@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 /**
  * All conflicts resolved with this {@link ConflictResolver} are won by remote,
  * meaning that
@@ -17,6 +19,9 @@ import java.util.Set;
  */
 public class RemoteWinsConflictResolver implements ConflictResolver {
 
+	private static Logger logger = Logger
+			.getLogger(RemoteWinsConflictResolver.class);
+
 	@Override
 	public Set<Change> resolve(final Set<TreeConflict> conflicts) {
 		Set<Change> changes = new HashSet<Change>(conflicts.size());
@@ -24,14 +29,18 @@ public class RemoteWinsConflictResolver implements ConflictResolver {
 		while (iter.hasNext()) {
 			TreeConflict conflict = iter.next();
 
+			logger.info(String.format("Resolving conflict: %1s", conflict));
+
 			if (conflict.getExistence() == Existence.LOCAL) {
-				changes.add(new Change(conflict.getPath(), ChangeType.CREATE,
-						Direction.PUSH));
+				changes.add(new Change(conflict.getPath(), conflict
+						.getLocalAttributes().getAddress(), ChangeType.DELETE,
+						Direction.PULL));
 			}
 
 			else if (conflict.getExistence() == Existence.REMOTE) {
-				changes.add(new Change(conflict.getPath(), ChangeType.DELETE,
-						Direction.PUSH));
+				changes.add(new Change(conflict.getPath(), conflict
+						.getRemoteAttributes().getAddress(), ChangeType.CREATE,
+						Direction.PULL));
 			}
 
 		}

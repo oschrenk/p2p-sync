@@ -15,10 +15,19 @@ import org.hhu.cs.p2p.remote.RemoteIndex;
  */
 public abstract class GenericTask implements Task {
 
+	/**
+	 * the {@link LocalIndex}
+	 */
 	protected LocalIndex localIndex;
 
+	/**
+	 * the {@link RemoteIndex}
+	 */
 	protected RemoteIndex remoteIndex;
 
+	/**
+	 * the relative {@link Path} where the change happens
+	 */
 	protected Path path;
 
 	/**

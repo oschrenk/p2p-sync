@@ -1,10 +1,13 @@
 package org.hhu.cs.p2p.index;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import org.hhu.cs.p2p.core.Registry;
 
 /**
  * The {@link Analyser} returns an {@link Analysis} by comparing two different
@@ -38,46 +41,51 @@ public class Analyser {
 		}
 
 		Iterator<Path> iter;
-		Path p;
-		Attributes attributes;
+		Path localIteratorPath;
+		Attributes remoteAttributes;
 
 		iter = local.keySet().iterator();
 		while (iter.hasNext()) {
-			p = iter.next();
-			attributes = remote.get(p.toString());
+			localIteratorPath = iter.next();
+			remoteAttributes = remote.get(localIteratorPath.toString());
 			// does not exist in remote
-			if (attributes == null) {
-				conflicts.add(new TreeConflict(p, Existence.LOCAL));
+			if (remoteAttributes == null) {
+				conflicts.add(new TreeConflict(localIteratorPath, local
+						.get(localIteratorPath), null, Existence.LOCAL));
 			}
 			// exists in remote
 			else {
-				long localModified = local.get(p).lastModifiedTime();
-				long remoteModified = attributes.lastModifiedTime();
+				long localModified = local.get(localIteratorPath)
+						.lastModifiedTime();
+				long remoteModified = remoteAttributes.lastModifiedTime();
 
 				if (localModified < remoteModified) {
-					changes
-							.add(new Change(p, ChangeType.UPDATE,
-									Direction.PULL));
+					changes.add(new Change(localIteratorPath, remoteAttributes
+							.getAddress(), ChangeType.UPDATE, Direction.PULL));
 				} else {
-					changes
-							.add(new Change(p, ChangeType.UPDATE,
-									Direction.PUSH));
+					changes.add(new Change(localIteratorPath, Registry
+							.getInstance().getAddress(), ChangeType.UPDATE,
+							Direction.PUSH));
 				}
 
 				// remove key from cloned list to reduce costs of next loop
-				clonedRemoteKeys.remove(p);
+				clonedRemoteKeys.remove(localIteratorPath);
 			}
 		} // done ierating local
 
-		// WARNING reusing objects p,e from above!
+		// WARNING reusing objects from above in while loop!
 		// iterate rest of remote keys
 		Iterator<String> clonedKeysIterator = clonedRemoteKeys.iterator();
+		Path remoteIteratorClonedPath;
+		Attributes localAttributes;
 		while (clonedKeysIterator.hasNext()) {
-			p = iter.next();
-			attributes = local.get(p);
+			remoteIteratorClonedPath = Paths.get(clonedKeysIterator.next());
+			localAttributes = local.get(remoteIteratorClonedPath);
 			// does not exist in local
-			if (attributes == null) {
-				conflicts.add(new TreeConflict(p, Existence.REMOTE));
+			if (localAttributes == null) {
+				conflicts.add(new TreeConflict(remoteIteratorClonedPath, null,
+						remote.get(remoteIteratorClonedPath.toString()),
+						Existence.REMOTE));
 			}
 		}
 

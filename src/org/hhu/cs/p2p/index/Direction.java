@@ -16,11 +16,5 @@ public enum Direction {
 	/**
 	 * Pull changes from remote
 	 */
-	PULL,
-
-	/**
-	 * Both local and remote
-	 */
-	BOTH;
-
+	PULL;
 }

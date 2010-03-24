@@ -10,6 +10,7 @@ import org.hhu.cs.p2p.index.Attributes;
 import org.hhu.cs.p2p.index.Change;
 import org.hhu.cs.p2p.index.ConflictResolver;
 import org.hhu.cs.p2p.index.LocalWinsConflictResolver;
+import org.hhu.cs.p2p.index.RemoteWinsConflictResolver;
 import org.hhu.cs.p2p.index.TreeConflict;
 import org.hhu.cs.p2p.local.LocalIndex;
 
@@ -30,41 +31,44 @@ public class Startup {
 	void run() {
 
 		logger.info("Getting hazelcast map.");
-
 		IMap<String, Attributes> map = Hazelcast.getMap("p2p");
 
 		Set<Member> members = Hazelcast.getCluster().getMembers();
-		if (members.size() == 1) {
-			logger.info("Creating initial index.");
-			logger.info("Locking map.");
-			Lock lock = Hazelcast.getLock(map);
-			lock.lock();
-			logger.info("Map locked.");
-
-			LocalIndex directoryIndex = Registry.getInstance().getLocalIndex();
-
-			Analysis analysis = new Analyser().compare(directoryIndex.map(),
-					map);
-			ConflictResolver resolver = new LocalWinsConflictResolver();
-			Set<Change> changes;
-			Set<TreeConflict> conflicts;
-
-			changes = analysis.getChanges();
-			conflicts = analysis.getTreeConflicts();
-
-			changes.addAll(resolver.resolve(conflicts));
-
-			ChangeService changeService = Registry.getInstance()
-					.getChangeService();
-			changeService.accept(changes);
-
-			while (!changeService.isEmpty()) {
-				// block
-			}
-
-			lock.unlock();
-			logger.info("Map unlocked.");
+		int size = members.size();
+		if (size == 1) {
+			init(map, size, new LocalWinsConflictResolver());
+		} else {
+			init(map, size, new RemoteWinsConflictResolver());
 		}
+	}
+
+	private void init(IMap<String, Attributes> map, int size,
+			ConflictResolver conflictResolver) {
+		logger.info(String.format("Member #%1s, %2s map entries", size, map
+				.size()));
+		Lock lock = Hazelcast.getLock(map);
+		lock.lock();
+
+		LocalIndex localIndex = Registry.getInstance().getLocalIndex();
+
+		Analysis analysis = new Analyser().compare(localIndex.map(), map);
+		Set<Change> changes;
+		Set<TreeConflict> conflicts;
+
+		changes = analysis.getChanges();
+		conflicts = analysis.getTreeConflicts();
+
+		changes.addAll(conflictResolver.resolve(conflicts));
+
+		ChangeService changeService = Registry.getInstance().getChangeService();
+		changeService.accept(changes);
+
+		while (!changeService.isEmpty()) {
+			// block
+		}
+
+		lock.unlock();
+		logger.info("Initial index created.");
 	}
 
 }

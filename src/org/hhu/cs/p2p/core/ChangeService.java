@@ -73,7 +73,7 @@ public class ChangeService extends Thread {
 	private void execute(final Change change) {
 		new Thread(new Runnable() {
 			public void run() {
-				logger.info("Executing change " + change);
+				logger.info(String.format("Firing change: %1s", change));
 				try {
 					taskBuilder.build(change).execute();
 				} catch (IOException e) {

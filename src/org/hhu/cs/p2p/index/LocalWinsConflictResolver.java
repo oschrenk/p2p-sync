@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.hhu.cs.p2p.core.Registry;
+
 /**
  * All conflicts resolved with this {@link ConflictResolver} are won by the
  * local machine, meaning that
@@ -25,12 +27,14 @@ public class LocalWinsConflictResolver implements ConflictResolver {
 			TreeConflict conflict = iter.next();
 
 			if (conflict.getExistence() == Existence.LOCAL) {
-				changes.add(new Change(conflict.getPath(), ChangeType.CREATE,
+				changes.add(new Change(conflict.getPath(), Registry
+						.getInstance().getAddress(), ChangeType.CREATE,
 						Direction.PUSH));
 			}
 
 			else if (conflict.getExistence() == Existence.REMOTE) {
-				changes.add(new Change(conflict.getPath(), ChangeType.DELETE,
+				changes.add(new Change(conflict.getPath(), Registry
+						.getInstance().getAddress(), ChangeType.DELETE,
 						Direction.PUSH));
 			}
 

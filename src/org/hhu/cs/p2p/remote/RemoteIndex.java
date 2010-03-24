@@ -43,21 +43,42 @@ public class RemoteIndex {
 		}
 	}
 
+	/**
+	 * @param path
+	 * @param attributes
+	 */
 	public void add(Path path, Attributes attributes) {
 		synchronized (map) {
 			put(path.toString(), attributes);
 		}
 	}
 
+	/**
+	 * @param path
+	 * @param attributes
+	 */
 	public void update(Path path, Attributes attributes) {
 		synchronized (map) {
 			put(path.toString(), attributes);
 		}
 	}
 
+	/**
+	 * @param path
+	 */
 	public void delete(Path path) {
 		synchronized (map) {
-			map.remove(path);
+			map.remove(path.toString());
+		}
+	}
+
+	/**
+	 * @param path
+	 * @return
+	 */
+	public Attributes get(Path path) {
+		synchronized (map) {
+			return map.get(path.toString());
 		}
 	}
 

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.hhu.cs.p2p.core.Registry;
 import org.hhu.cs.p2p.index.Attributes;
 import org.hhu.cs.p2p.io.DirectoryVisitor;
 
@@ -51,28 +52,30 @@ public class LocalIndex implements Serializable {
 	/**
 	 * Adds a new entry to the index
 	 * 
-	 * @param path
-	 *            the path (in respect to the directory that is being watched)
+	 * @param relativePath
+	 *            the {@link Path} (relative to root)
 	 * @throws IOException
-	 *             if reading file attributes, or creating SHA-1 won't work
+	 *             if error reading file attributes
 	 */
-	public synchronized void add(Path path) throws IOException {
-		Attributes attributes = new Attributes(getAttributes(path));
-		logger.info(String.format("Adding \"%1s\" with attributes %2s", path,
-				attributes));
-		map.put(path, attributes);
+	public synchronized void add(Path relativePath) throws IOException {
+		Attributes attributes = new Attributes(getAttributes(rootDirectory,
+				relativePath), Registry.getInstance().getAddress());
+		logger.info(String.format("Adding \"%1s\" with attributes %2s",
+				relativePath, attributes));
+		map.put(relativePath, attributes);
 	}
 
 	/**
 	 * Updates an entry in the index with new infos
 	 * 
-	 * @param path
-	 *            the path (in respect to the directory that is being watched)
+	 * @param relativePath
+	 *            the {@link Path} (relative to root)
 	 * @throws IOException
+	 *             if error reading file attributes
 	 */
-	public synchronized void update(Path path) throws IOException {
-		Path relativePath = rootDirectory.relativize(path.toAbsolutePath());
-		Attributes attributes = new Attributes(getAttributes(path));
+	public synchronized void update(Path relativePath) throws IOException {
+		Attributes attributes = new Attributes(getAttributes(rootDirectory,
+				relativePath), Registry.getInstance().getAddress());
 
 		logger.info(String.format("Updating \"%1s\" with attributes %2s",
 				relativePath, attributes));
@@ -89,6 +92,11 @@ public class LocalIndex implements Serializable {
 	public synchronized void delete(Path relativePath) {
 		logger.info(String.format("Deleting \"%1s\".", relativePath));
 		map.remove(relativePath);
+		try {
+			relativePath.deleteIfExists();
+		} catch (IOException e) {
+			logger.error(String.format("Error deleting %1s", relativePath), e);
+		}
 	}
 
 	/**
@@ -100,10 +108,15 @@ public class LocalIndex implements Serializable {
 		return map.get(key);
 	}
 
-	private BasicFileAttributes getAttributes(Path relativePath)
-			throws IOException {
+	private BasicFileAttributes getAttributes(Path rootDirectory,
+			Path relativePath) throws IOException {
+		Path absolutePath = rootDirectory.resolve(relativePath);
+		if (logger.isTraceEnabled())
+			logger.trace(String
+					.format("Getting attributes of %s", absolutePath));
+
 		return java.nio.file.attribute.Attributes.readBasicFileAttributes(
-				rootDirectory.resolve(relativePath), LinkOption.NOFOLLOW_LINKS);
+				absolutePath, LinkOption.NOFOLLOW_LINKS);
 	}
 
 	/**

@@ -41,6 +41,8 @@ public class NetworkClient {
 	public NetworkClient(Path rootDirectory) {
 		this.rootDirectory = rootDirectory;
 		this.httpClient = new DefaultHttpClient();
+		logger.info(String.format("Created new HttpClient on root \"%1s\"",
+				rootDirectory));
 	}
 
 	/**

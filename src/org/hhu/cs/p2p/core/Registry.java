@@ -1,7 +1,9 @@
 package org.hhu.cs.p2p.core;
 
+import java.net.InetSocketAddress;
+import java.nio.file.Path;
+
 import org.hhu.cs.p2p.local.LocalIndex;
-import org.hhu.cs.p2p.net.NetworkClient;
 import org.hhu.cs.p2p.remote.RemoteIndex;
 
 /**
@@ -34,7 +36,9 @@ public class Registry {
 
 	private State state;
 
-	private NetworkClient networkClient;
+	private Path rootDirectory;
+
+	private InetSocketAddress address;
 
 	/**
 	 * @param changeService
@@ -79,10 +83,10 @@ public class Registry {
 	}
 
 	/**
-	 * @return the network client
+	 * @return the root directory
 	 */
-	public NetworkClient getNetworkClient() {
-		return networkClient;
+	public Path getRootDirectory() {
+		return rootDirectory;
 	}
 
 	/**
@@ -90,6 +94,13 @@ public class Registry {
 	 */
 	public State getState() {
 		return state;
+	}
+
+	/**
+	 * @return {@link InetSocketAddress} of the embedded webserver
+	 */
+	public InetSocketAddress getAddress() {
+		return address;
 	}
 
 	/**
@@ -101,11 +112,18 @@ public class Registry {
 	}
 
 	/**
-	 * @param networkClient
-	 *            {@link NetworkClient}
+	 * @param rootDirectory
 	 */
-	public void setNetworkClient(NetworkClient networkClient) {
-		this.networkClient = networkClient;
+	public void setRootDirecory(Path rootDirectory) {
+		this.rootDirectory = rootDirectory;
+	}
+
+	/**
+	 * @param address
+	 *            the {@link InetSocketAddress} of this webserver
+	 */
+	public void setAddress(InetSocketAddress address) {
+		this.address = address;
 	}
 
 }

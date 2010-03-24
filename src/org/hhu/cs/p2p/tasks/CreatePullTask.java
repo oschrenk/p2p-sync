@@ -1,9 +1,14 @@
 package org.hhu.cs.p2p.tasks;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 
+import org.apache.log4j.Logger;
+import org.hhu.cs.p2p.core.Registry;
+import org.hhu.cs.p2p.index.Attributes;
 import org.hhu.cs.p2p.local.LocalIndex;
+import org.hhu.cs.p2p.net.NetworkClient;
 import org.hhu.cs.p2p.remote.RemoteIndex;
 
 /**
@@ -13,6 +18,8 @@ import org.hhu.cs.p2p.remote.RemoteIndex;
  * 
  */
 public class CreatePullTask extends GenericTask {
+
+	private static Logger logger = Logger.getLogger(CreatePullTask.class);
 
 	/**
 	 * @param localIndex
@@ -27,9 +34,14 @@ public class CreatePullTask extends GenericTask {
 
 	@Override
 	public void execute() throws IOException {
-		// Registry.getInstance().getNetworkClient().request(socketAdress,
-		// path);
+		Attributes attributes = remoteIndex.get(path);
+		try {
+			// TODO get rid of getRootDirectory, stupid (non)dependency
+			new NetworkClient(Registry.getInstance().getRootDirectory())
+					.request(attributes.getAddress(), path.toString());
+		} catch (URISyntaxException e) {
+			logger.error(e);
+		}
 		localIndex.add(path);
 	}
-
 }
