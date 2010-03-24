@@ -1,4 +1,4 @@
-package org.hhu.cs.p2p.net;
+package org.hhu.cs.p2p.remote;
 
 import org.apache.log4j.Logger;
 

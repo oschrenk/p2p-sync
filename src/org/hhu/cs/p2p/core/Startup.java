@@ -11,8 +11,8 @@ import org.hhu.cs.p2p.index.ChangeService;
 import org.hhu.cs.p2p.index.ConflictResolver;
 import org.hhu.cs.p2p.index.LocalWinsConflictResolver;
 import org.hhu.cs.p2p.index.TreeConflict;
-import org.hhu.cs.p2p.io.LocalIndex;
 import org.hhu.cs.p2p.io.PathAttributes;
+import org.hhu.cs.p2p.local.LocalIndex;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.IMap;

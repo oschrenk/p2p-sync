@@ -1,5 +1,6 @@
-package org.hhu.cs.p2p.net;
+package org.hhu.cs.p2p.remote;
 
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -41,6 +42,21 @@ public class RemoteIndex {
 			Member m = iter.next();
 			m.getInetSocketAddress();
 		}
+	}
 
+	public void add(Path path, PathAttributes pathAttributes) {
+		synchronized (map) {
+			put(path.toString(), pathAttributes);
+		}
+	}
+
+	public void update(Path path, PathAttributes pathAttributes) {
+		synchronized (map) {
+			put(path.toString(), pathAttributes);
+		}
+	}
+
+	private void put(String path, PathAttributes pathAttributes) {
+		map.put(path, pathAttributes);
 	}
 }

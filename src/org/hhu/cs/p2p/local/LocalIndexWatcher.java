@@ -1,4 +1,4 @@
-package org.hhu.cs.p2p.io;
+package org.hhu.cs.p2p.local;
 
 import static java.nio.file.StandardWatchEventKind.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKind.ENTRY_DELETE;

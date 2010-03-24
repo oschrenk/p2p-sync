@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
 import org.apache.log4j.Logger;
+import org.hhu.cs.p2p.local.LocalIndex;
 
 /**
  * 
@@ -32,7 +33,7 @@ public class DirectoryVisitor implements FileVisitor<Path> {
 	 * @param parentDirectory
 	 *            the root of the directory to traverse
 	 */
-	protected DirectoryVisitor(LocalIndex directoryIndex, Path parentDirectory) {
+	public DirectoryVisitor(LocalIndex directoryIndex, Path parentDirectory) {
 		logger.info("Walking " + parentDirectory);
 		this.localIndex = directoryIndex;
 	}

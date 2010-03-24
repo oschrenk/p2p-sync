@@ -5,10 +5,10 @@ import java.nio.file.Path;
 
 import org.apache.log4j.Logger;
 import org.hhu.cs.p2p.index.ChangeService;
-import org.hhu.cs.p2p.io.LocalIndex;
-import org.hhu.cs.p2p.io.LocalIndexWatcher;
+import org.hhu.cs.p2p.local.LocalIndex;
+import org.hhu.cs.p2p.local.LocalIndexWatcher;
 import org.hhu.cs.p2p.net.NetworkService;
-import org.hhu.cs.p2p.net.RemoteIndex;
+import org.hhu.cs.p2p.remote.RemoteIndex;
 
 import uk.co.flamingpenguin.jewel.cli.ArgumentValidationException;
 import uk.co.flamingpenguin.jewel.cli.Cli;

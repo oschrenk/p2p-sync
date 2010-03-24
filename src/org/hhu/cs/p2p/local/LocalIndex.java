@@ -1,4 +1,4 @@
-package org.hhu.cs.p2p.io;
+package org.hhu.cs.p2p.local;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.hhu.cs.p2p.io.DirectoryVisitor;
+import org.hhu.cs.p2p.io.PathAttributes;
 
 /**
  * Holds the index of all files within a directory
