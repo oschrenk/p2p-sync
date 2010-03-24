@@ -1,6 +1,7 @@
 package org.hhu.cs.p2p.core;
 
 import org.hhu.cs.p2p.local.LocalIndex;
+import org.hhu.cs.p2p.net.NetworkClient;
 import org.hhu.cs.p2p.remote.RemoteIndex;
 
 /**
@@ -32,6 +33,8 @@ public class Registry {
 	private ChangeService changeService;
 
 	private State state;
+
+	private NetworkClient networkClient;
 
 	/**
 	 * @param changeService
@@ -76,6 +79,13 @@ public class Registry {
 	}
 
 	/**
+	 * @return the network client
+	 */
+	public NetworkClient getNetworkClient() {
+		return networkClient;
+	}
+
+	/**
 	 * @return {@link State} of application
 	 */
 	public State getState() {
@@ -88,6 +98,14 @@ public class Registry {
 	 */
 	public void setState(State state) {
 		this.state = state;
+	}
+
+	/**
+	 * @param networkClient
+	 *            {@link NetworkClient}
+	 */
+	public void setNetworkClient(NetworkClient networkClient) {
+		this.networkClient = networkClient;
 	}
 
 }

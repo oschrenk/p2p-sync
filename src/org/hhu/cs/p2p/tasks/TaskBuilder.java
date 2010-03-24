@@ -60,4 +60,14 @@ public class TaskBuilder {
 			throw new IllegalArgumentException("Guru Meditation Failure.");
 		}
 	}
+	
+	private Task buildPullTask(Change change) {
+		switch (change.getType()) {
+		case CREATE:
+			return new CreatePullTask(localIndex, remoteIndex, change.getPath());
+		
+		default:
+			throw new IllegalArgumentException("Guru Meditation Failure.");
+		}
+	}
 }
