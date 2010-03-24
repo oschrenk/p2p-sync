@@ -5,14 +5,13 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.attribute.Attributes;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.hhu.cs.p2p.index.Attributes;
 import org.hhu.cs.p2p.io.DirectoryVisitor;
-import org.hhu.cs.p2p.io.PathAttributes;
 
 /**
  * Holds the index of all files within a directory
@@ -28,7 +27,7 @@ public class LocalIndex implements Serializable {
 
 	private Path rootDirectory;
 
-	private Map<Path, PathAttributes> map;
+	private Map<Path, Attributes> map;
 
 	/**
 	 * @param rootDirectory
@@ -36,7 +35,7 @@ public class LocalIndex implements Serializable {
 	 */
 	public LocalIndex(Path rootDirectory) {
 		this.rootDirectory = rootDirectory.toAbsolutePath();
-		this.map = new HashMap<Path, PathAttributes>();
+		this.map = new HashMap<Path, Attributes>();
 
 		logger.info(String.format("Creating initial index of \"%1s\".",
 				rootDirectory));
@@ -54,16 +53,14 @@ public class LocalIndex implements Serializable {
 	 * 
 	 * @param path
 	 *            the path (in respect to the directory that is being watched)
-	 * @param entry
-	 *            infos about the entry
 	 * @throws IOException
 	 *             if reading file attributes, or creating SHA-1 won't work
 	 */
 	public synchronized void add(Path path) throws IOException {
-		PathAttributes entry = new PathAttributes(getAttributes(path));
-		logger.info(String.format("Adding \"%1s\" with attributes %2s",
-				path, entry));
-		map.put(path, entry);
+		Attributes attributes = new Attributes(getAttributes(path));
+		logger.info(String.format("Adding \"%1s\" with attributes %2s", path,
+				attributes));
+		map.put(path, attributes);
 	}
 
 	/**
@@ -71,17 +68,15 @@ public class LocalIndex implements Serializable {
 	 * 
 	 * @param path
 	 *            the path (in respect to the directory that is being watched)
-	 * @param entry
-	 *            new infos about the entry
 	 * @throws IOException
 	 */
 	public synchronized void update(Path path) throws IOException {
 		Path relativePath = rootDirectory.relativize(path.toAbsolutePath());
-		PathAttributes entry = new PathAttributes(getAttributes(path));
+		Attributes attributes = new Attributes(getAttributes(path));
 
 		logger.info(String.format("Updating \"%1s\" with attributes %2s",
-				relativePath, entry));
-		map.put(relativePath, entry);
+				relativePath, attributes));
+		map.put(relativePath, attributes);
 	}
 
 	/**
@@ -101,20 +96,20 @@ public class LocalIndex implements Serializable {
 	 *            the relative path
 	 * @return the path attributes
 	 */
-	public PathAttributes get(Path key) {
+	public Attributes get(Path key) {
 		return map.get(key);
 	}
 
 	private BasicFileAttributes getAttributes(Path relativePath)
 			throws IOException {
-		return Attributes.readBasicFileAttributes(rootDirectory
-				.resolve(relativePath), LinkOption.NOFOLLOW_LINKS);
+		return java.nio.file.attribute.Attributes.readBasicFileAttributes(
+				rootDirectory.resolve(relativePath), LinkOption.NOFOLLOW_LINKS);
 	}
 
 	/**
 	 * @return the map
 	 */
-	public Map<Path, PathAttributes> map() {
+	public Map<Path, Attributes> map() {
 		return map;
 	}
 }

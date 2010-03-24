@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.hhu.cs.p2p.io.PathAttributes;
+import org.hhu.cs.p2p.index.Attributes;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.IMap;
@@ -23,7 +23,7 @@ public class RemoteIndex {
 
 	private static final String MAP_NAME = "p2p";
 
-	private IMap<String, PathAttributes> map;
+	private IMap<String, Attributes> map;
 
 	/**
 	 * Default constructor
@@ -43,15 +43,15 @@ public class RemoteIndex {
 		}
 	}
 
-	public void add(Path path, PathAttributes pathAttributes) {
+	public void add(Path path, Attributes attributes) {
 		synchronized (map) {
-			put(path.toString(), pathAttributes);
+			put(path.toString(), attributes);
 		}
 	}
 
-	public void update(Path path, PathAttributes pathAttributes) {
+	public void update(Path path, Attributes attributes) {
 		synchronized (map) {
-			put(path.toString(), pathAttributes);
+			put(path.toString(), attributes);
 		}
 	}
 
@@ -61,8 +61,8 @@ public class RemoteIndex {
 		}
 	}
 
-	private void put(String path, PathAttributes pathAttributes) {
-		map.put(path, pathAttributes);
+	private void put(String path, Attributes attributes) {
+		map.put(path, attributes);
 	}
 
 	@Override

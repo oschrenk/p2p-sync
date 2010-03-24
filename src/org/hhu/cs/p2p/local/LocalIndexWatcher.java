@@ -123,24 +123,24 @@ public class LocalIndexWatcher implements Runnable {
 				Path child = parentDirectory.resolve(event.context());
 
 				if (e.kind() == StandardWatchEventKind.ENTRY_CREATE) {
-					BasicFileAttributes pathAttributes = Attributes
+					BasicFileAttributes basicFileAttributes = Attributes
 							.readBasicFileAttributes(child,
 									LinkOption.NOFOLLOW_LINKS);
 					if (logger.isTraceEnabled())
 						logger.trace("Path was created: " + child);
-					if (pathAttributes.isDirectory()) {
+					if (basicFileAttributes.isDirectory()) {
 						register(child);
 					} else {
 						localIndex.add(child);
 					}
 				} else if (e.kind() == StandardWatchEventKind.ENTRY_MODIFY) {
-					BasicFileAttributes pathAttributes = Attributes
+					BasicFileAttributes basicFileAttributes = Attributes
 							.readBasicFileAttributes(child,
 									LinkOption.NOFOLLOW_LINKS);
 					if (logger.isTraceEnabled())
 						logger.trace("Path was modified: " + child);
 
-					if (pathAttributes.isDirectory()) {
+					if (basicFileAttributes.isDirectory()) {
 						// do nothing
 					} else {
 						localIndex.update(child);

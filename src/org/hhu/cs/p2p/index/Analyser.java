@@ -6,11 +6,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.hhu.cs.p2p.io.PathAttributes;
-
 /**
  * The {@link Analyser} returns an {@link Analysis} by comparing two different
- * {@link Map}s of {@link Path} to {@link FileEntry}.
+ * {@link Map}s of {@link Path} to {@link Attributes}.
  * 
  * Changes occur if a path exists on both maps but one is newer.
  * 
@@ -28,8 +26,8 @@ public class Analyser {
 	 *            the map of the cloud
 	 * @return
 	 */
-	public Analysis compare(final Map<Path, PathAttributes> local,
-			final Map<String, PathAttributes> remote) {
+	public Analysis compare(final Map<Path, Attributes> local,
+			final Map<String, Attributes> remote) {
 		Set<TreeConflict> conflicts = new HashSet<TreeConflict>();
 		Set<Change> changes = new HashSet<Change>();
 
@@ -41,20 +39,20 @@ public class Analyser {
 
 		Iterator<Path> iter;
 		Path p;
-		PathAttributes pathAttributes;
+		Attributes attributes;
 
 		iter = local.keySet().iterator();
 		while (iter.hasNext()) {
 			p = iter.next();
-			pathAttributes = remote.get(p.toString());
+			attributes = remote.get(p.toString());
 			// does not exist in remote
-			if (pathAttributes == null) {
+			if (attributes == null) {
 				conflicts.add(new TreeConflict(p, Existence.LOCAL));
 			}
 			// exists in remote
 			else {
 				long localModified = local.get(p).lastModifiedTime();
-				long remoteModified = pathAttributes.lastModifiedTime();
+				long remoteModified = attributes.lastModifiedTime();
 
 				if (localModified < remoteModified) {
 					changes
@@ -76,9 +74,9 @@ public class Analyser {
 		Iterator<String> clonedKeysIterator = clonedRemoteKeys.iterator();
 		while (clonedKeysIterator.hasNext()) {
 			p = iter.next();
-			pathAttributes = local.get(p);
+			attributes = local.get(p);
 			// does not exist in local
-			if (pathAttributes == null) {
+			if (attributes == null) {
 				conflicts.add(new TreeConflict(p, Existence.REMOTE));
 			}
 		}
