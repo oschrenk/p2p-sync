@@ -72,7 +72,7 @@ public class FolderSync {
 			RemoteIndex remoteIndex = new RemoteIndex();
 
 			// change service is needed right away, start it
-			ChangeService changeService = new ChangeService();
+			ChangeService changeService = new ChangeService(localIndex, remoteIndex);
 			new Thread(changeService).start();
 
 			registry.setLocalIndex(localIndex);

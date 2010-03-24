@@ -1,11 +1,15 @@
 package org.hhu.cs.p2p.core;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 import org.hhu.cs.p2p.index.Change;
+import org.hhu.cs.p2p.local.LocalIndex;
+import org.hhu.cs.p2p.remote.RemoteIndex;
+import org.hhu.cs.p2p.tasks.TaskBuilder;
 
 /**
  * 
@@ -20,10 +24,14 @@ public class ChangeService extends Thread {
 
 	private boolean running;
 
+	private TaskBuilder taskBuilder;
+
 	/**
-	 * Default constructor
+	 * @param remoteIndex
+	 * @param localIndex
 	 */
-	public ChangeService() {
+	public ChangeService(LocalIndex localIndex, RemoteIndex remoteIndex) {
+		this.taskBuilder = new TaskBuilder(localIndex, remoteIndex);
 		this.queue = new LinkedBlockingQueue<Change>();
 		this.running = false;
 	}
@@ -66,7 +74,14 @@ public class ChangeService extends Thread {
 		new Thread(new Runnable() {
 			public void run() {
 				logger.info("Executing change " + change);
-				// TODO make the change
+				try {
+					taskBuilder.build(change).execute();
+				} catch (IOException e) {
+					logger
+							.error(String.format("%1s didn't execute", change),
+									e);
+				}
+
 			}
 		}).start();
 	}
@@ -74,8 +89,9 @@ public class ChangeService extends Thread {
 	/**
 	 * Stops the service
 	 */
-	public void stopService() {
+	private void stopService() {
 		logger.info("Stopping ChangeService.");
+		queue.clear();
 		running = false;
 	}
 
@@ -84,5 +100,4 @@ public class ChangeService extends Thread {
 		stopService();
 		super.finalize();
 	}
-
 }

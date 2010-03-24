@@ -60,13 +60,10 @@ public class LocalIndex implements Serializable {
 	 *             if reading file attributes, or creating SHA-1 won't work
 	 */
 	public synchronized void add(Path path) throws IOException {
-
-		Path relativePath = rootDirectory.relativize(path);
 		PathAttributes entry = new PathAttributes(getAttributes(path));
-
 		logger.info(String.format("Adding \"%1s\" with attributes %2s",
-				relativePath, entry));
-		map.put(relativePath, entry);
+				path, entry));
+		map.put(path, entry);
 	}
 
 	/**
@@ -108,9 +105,10 @@ public class LocalIndex implements Serializable {
 		return map.get(key);
 	}
 
-	private BasicFileAttributes getAttributes(Path path) throws IOException {
-		return Attributes.readBasicFileAttributes(path,
-				LinkOption.NOFOLLOW_LINKS);
+	private BasicFileAttributes getAttributes(Path relativePath)
+			throws IOException {
+		return Attributes.readBasicFileAttributes(rootDirectory
+				.resolve(relativePath), LinkOption.NOFOLLOW_LINKS);
 	}
 
 	/**

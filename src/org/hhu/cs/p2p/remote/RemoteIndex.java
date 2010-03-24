@@ -33,8 +33,7 @@ public class RemoteIndex {
 
 		logger.info("Getting hazelcast map.");
 		map = Hazelcast.getMap(MAP_NAME);
-		map.addEntryListener(new RemoteIndexWatcher<String, PathAttributes>(),
-				true);
+		map.addEntryListener(new RemoteIndexWatcher(), true);
 
 		Set<Member> members = Hazelcast.getCluster().getMembers();
 		Iterator<Member> iter = members.iterator();
@@ -56,7 +55,19 @@ public class RemoteIndex {
 		}
 	}
 
+	public void delete(Path path) {
+		synchronized (map) {
+			map.remove(path);
+		}
+	}
+
 	private void put(String path, PathAttributes pathAttributes) {
 		map.put(path, pathAttributes);
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		Hazelcast.shutdownAll();
+		super.finalize();
 	}
 }

@@ -1,6 +1,7 @@
 package org.hhu.cs.p2p.remote;
 
 import org.apache.log4j.Logger;
+import org.hhu.cs.p2p.io.PathAttributes;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
@@ -8,15 +9,13 @@ import com.hazelcast.core.EntryListener;
 /**
  * @author Oliver
  * 
- * @param <Path>
- * @param <FileEntry>
  */
-public class RemoteIndexWatcher<Path, FileEntry> implements
-		EntryListener<Path, FileEntry> {
+public class RemoteIndexWatcher implements
+		EntryListener<String, PathAttributes> {
 
 	private static Logger logger = Logger.getLogger(RemoteIndexWatcher.class);
 
-	public void entryAdded(EntryEvent<Path, FileEntry> event) {
+	public void entryAdded(EntryEvent<String, PathAttributes> event) {
 		logger.info(String.format("Adding entry %1s", event.getKey()));
 
 		// who added the file?
@@ -31,17 +30,17 @@ public class RemoteIndexWatcher<Path, FileEntry> implements
 		// handle callback when finished
 	}
 
-	public void entryRemoved(EntryEvent<Path, FileEntry> event) {
+	public void entryRemoved(EntryEvent<String, PathAttributes> event) {
 		logger.info(String.format("Deleting entry %1s", event.getKey()));
 	}
 
-	public void entryUpdated(EntryEvent<Path, FileEntry> event) {
+	public void entryUpdated(EntryEvent<String, PathAttributes> event) {
 		logger.info(String.format("Updating entry %1s", event.getKey()));
 		// handle like entry added
 	}
 
 	@Override
-	public void entryEvicted(EntryEvent<Path, FileEntry> event) {
+	public void entryEvicted(EntryEvent<String, PathAttributes> event) {
 		logger.info(String.format("Evecting entry %1s", event.getKey()));
 	}
 

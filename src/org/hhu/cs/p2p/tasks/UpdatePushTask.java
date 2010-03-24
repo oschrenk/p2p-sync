@@ -13,7 +13,7 @@ import org.hhu.cs.p2p.remote.RemoteIndex;
  * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
  * 
  */
-public class CreatePushTask extends GenericTask {
+public class UpdatePushTask extends GenericTask {
 
 	/**
 	 * @param localIndex
@@ -21,15 +21,15 @@ public class CreatePushTask extends GenericTask {
 	 * @param path
 	 * @see GenericTask
 	 */
-	public CreatePushTask(LocalIndex localIndex, RemoteIndex remoteIndex,
+	public UpdatePushTask(LocalIndex localIndex, RemoteIndex remoteIndex,
 			Path path) {
 		super(localIndex, remoteIndex, path);
 	}
 
 	@Override
 	public void execute() throws IOException {
-		localIndex.add(path);
-		remoteIndex.add(path, localIndex.get(path));
+		localIndex.update(path);
+		remoteIndex.update(path, localIndex.get(path));
 	}
 
 }
