@@ -21,6 +21,8 @@ public class Attributes implements Serializable {
 
 	private InetSocketAddress address;
 
+	private String hash;
+
 	/**
 	 * Construct a new {@link Attributes}
 	 * 
@@ -28,8 +30,12 @@ public class Attributes implements Serializable {
 	 *            {@link BasicFileAttributes} of the {@link Path}
 	 * @param address
 	 *            the address of the member responsible
+	 * @param hash
+	 *            the hash value of the file, empty string if directory
 	 */
-	public Attributes(BasicFileAttributes attributes, InetSocketAddress address) {
+	public Attributes(String hash, BasicFileAttributes attributes,
+			InetSocketAddress address) {
+		this.hash = hash;
 		this.lastModifiedTime = attributes.lastModifiedTime().toMillis();
 		this.isDirectory = attributes.isDirectory();
 		this.address = address;
@@ -57,9 +63,18 @@ public class Attributes implements Serializable {
 		return address;
 	}
 
+	/**
+	 * @return the hash value of the file, empty String if path is directory
+	 */
+	public String getHash() {
+		return hash;
+	}
+
 	@Override
 	public String toString() {
-		return "Attributes [address=" + address + ", isDirectory="
-				+ isDirectory + ", lastModifiedTime=" + lastModifiedTime + "]";
+		return "Attributes [hash=" + hash + ", isDirectory=" + isDirectory
+				+ ", lastModifiedTime=" + lastModifiedTime + ", address="
+				+ address + "]";
 	}
+
 }

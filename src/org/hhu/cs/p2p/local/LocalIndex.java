@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.hhu.cs.p2p.core.Registry;
 import org.hhu.cs.p2p.index.Attributes;
 import org.hhu.cs.p2p.io.DirectoryVisitor;
+import org.hhu.cs.p2p.util.IOUtils;
 
 /**
  * Holds the index of all files within a directory
@@ -58,8 +59,9 @@ public class LocalIndex implements Serializable {
 	 *             if error reading file attributes
 	 */
 	public synchronized void add(Path relativePath) throws IOException {
-		Attributes attributes = new Attributes(getAttributes(rootDirectory,
-				relativePath), Registry.getInstance().getAddress());
+		Attributes attributes = new Attributes(getHash(rootDirectory,
+				relativePath), getAttributes(rootDirectory, relativePath),
+				Registry.getInstance().getAddress());
 		logger.info(String.format("Adding \"%1s\" with attributes %2s",
 				relativePath, attributes));
 		map.put(relativePath, attributes);
@@ -74,8 +76,9 @@ public class LocalIndex implements Serializable {
 	 *             if error reading file attributes
 	 */
 	public synchronized void update(Path relativePath) throws IOException {
-		Attributes attributes = new Attributes(getAttributes(rootDirectory,
-				relativePath), Registry.getInstance().getAddress());
+		Attributes attributes = new Attributes(getHash(rootDirectory,
+				relativePath), getAttributes(rootDirectory, relativePath),
+				Registry.getInstance().getAddress());
 
 		logger.info(String.format("Updating \"%1s\" with attributes %2s",
 				relativePath, attributes));
@@ -108,12 +111,21 @@ public class LocalIndex implements Serializable {
 		return map.get(key);
 	}
 
+	private String getHash(Path rootDirectory, Path relativePath)
+			throws IOException {
+		Path absolutePath = rootDirectory.resolve(relativePath);
+		if (logger.isTraceEnabled())
+			logger.trace(String.format("Hashing %1s", absolutePath));
+
+		return IOUtils.sha1(absolutePath);
+	}
+
 	private BasicFileAttributes getAttributes(Path rootDirectory,
 			Path relativePath) throws IOException {
 		Path absolutePath = rootDirectory.resolve(relativePath);
 		if (logger.isTraceEnabled())
-			logger.trace(String
-					.format("Getting attributes of %s", absolutePath));
+			logger.trace(String.format("Getting attributes of %1s",
+					absolutePath));
 
 		return java.nio.file.attribute.Attributes.readBasicFileAttributes(
 				absolutePath, LinkOption.NOFOLLOW_LINKS);
