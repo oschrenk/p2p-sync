@@ -55,23 +55,13 @@ public class Analyser {
 			}
 			// exists in remote
 			else {
-				long localModified = local.get(localIteratorPath)
-						.lastModifiedTime();
-				long remoteModified = remoteAttributes.lastModifiedTime();
-
-				if (localModified < remoteModified) {
-					changes.add(new Change(localIteratorPath, remoteAttributes
-							.getAddress(), ChangeType.UPDATE, Direction.PULL));
-				} else {
-					changes.add(new Change(localIteratorPath, Registry
-							.getInstance().getAddress(), ChangeType.UPDATE,
-							Direction.PUSH));
-				}
+				changes.add(compareAttributes(localIteratorPath, local
+						.get(localIteratorPath), remoteAttributes));
 
 				// remove key from cloned list to reduce costs of next loop
 				clonedRemoteKeys.remove(localIteratorPath);
 			}
-		} // done ierating local
+		} // done iterating local
 
 		// WARNING reusing objects from above in while loop!
 		// iterate rest of remote keys
@@ -90,5 +80,19 @@ public class Analyser {
 		}
 
 		return new Analysis(changes, conflicts);
+	}
+
+	private Change compareAttributes(Path path, Attributes localAttributes,
+			Attributes remoteAttributes) {
+		long localModified = localAttributes.lastModifiedTime();
+		long remoteModified = remoteAttributes.lastModifiedTime();
+
+		if (localModified < remoteModified) {
+			return new Change(path, remoteAttributes.getAddress(),
+					ChangeType.UPDATE, Direction.PULL);
+		} else {
+			return new Change(path, Registry.getInstance().getAddress(),
+					ChangeType.UPDATE, Direction.PUSH);
+		}
 	}
 }
