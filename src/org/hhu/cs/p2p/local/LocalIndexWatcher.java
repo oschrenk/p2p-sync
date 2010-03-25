@@ -115,7 +115,6 @@ public class LocalIndexWatcher implements Runnable {
 			}
 
 			for (WatchEvent<?> e : key.pollEvents()) {
-				logger.trace("Fired WatchEvent");
 
 				@SuppressWarnings("unchecked")
 				WatchEvent<Path> event = (WatchEvent<Path>) e;
@@ -130,7 +129,7 @@ public class LocalIndexWatcher implements Runnable {
 						logger
 								.trace(String.format("Ignoring %1s",
 										absoutePath));
-					return;
+					continue;
 				}
 
 				// creating entry
