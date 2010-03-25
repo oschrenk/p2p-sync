@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.hhu.cs.p2p.core.Registry;
 
 /**
@@ -21,6 +22,8 @@ import org.hhu.cs.p2p.core.Registry;
  * 
  */
 public class Analyser {
+
+	private static Logger logger = Logger.getLogger(Analyser.class);
 
 	/**
 	 * @param local
@@ -55,8 +58,11 @@ public class Analyser {
 			}
 			// exists in remote
 			else {
-				changes.add(compareAttributes(localIteratorPath, local
-						.get(localIteratorPath), remoteAttributes));
+				// TODO NullChangeObject?
+				Change change = compareAttributes(localIteratorPath, local
+						.get(localIteratorPath), remoteAttributes);
+				if (change != null)
+					changes.add(change);
 
 				// remove key from cloned list to reduce costs of next loop
 				clonedRemoteKeys.remove(localIteratorPath);
@@ -87,9 +93,16 @@ public class Analyser {
 		long localModified = localAttributes.lastModifiedTime();
 		long remoteModified = remoteAttributes.lastModifiedTime();
 
+		if (logger.isTraceEnabled())
+			logger.trace(String.format(
+					"Comparing times on %1s, local: %2s, remote %3s", path
+							.toString(), localModified, remoteModified));
+
 		if (localModified < remoteModified) {
 			return new Change(path, remoteAttributes.getAddress(),
 					ChangeType.UPDATE, Direction.PULL);
+		} else if (localModified == remoteModified) {
+			return null;
 		} else {
 			return new Change(path, Registry.getInstance().getAddress(),
 					ChangeType.UPDATE, Direction.PUSH);

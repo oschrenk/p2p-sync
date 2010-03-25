@@ -10,6 +10,7 @@ import org.hhu.cs.p2p.local.LocalIndex;
 import org.hhu.cs.p2p.local.LocalIndexWatcher;
 import org.hhu.cs.p2p.net.NetworkService;
 import org.hhu.cs.p2p.remote.RemoteIndex;
+import org.hhu.cs.p2p.remote.RemoteIndexWatcher;
 
 import uk.co.flamingpenguin.jewel.cli.ArgumentValidationException;
 import uk.co.flamingpenguin.jewel.cli.Cli;
@@ -73,7 +74,6 @@ public class FolderSync {
 					.getPort(), rootDirectory);
 			networkService.start();
 
-			// will block for initial indexing
 			final LocalIndex localIndex = new LocalIndex(rootDirectory);
 
 			final LocalIndexWatcher localIndexWatcher = new LocalIndexWatcher(
@@ -103,6 +103,12 @@ public class FolderSync {
 			// startup sequence
 			new Startup().run();
 
+			while (!changeService.isEmpty()) {
+				// wait
+			}
+
+			// start watching
+			remoteIndex.addEntryListener(new RemoteIndexWatcher());
 			new Thread(localIndexWatcher).start();
 
 		} catch (IOException e) {

@@ -47,6 +47,11 @@ public class CreatePullTask extends GenericTask {
 			logger.error(e);
 		}
 
+		if (logger.isTraceEnabled()) {
+
+		}
+		logger.trace(String.format("Setting time on %1s to %2s", path,
+				attributes.lastModifiedTime()));
 		rootDirectory.resolve(path).setAttribute("basic:lastModifiedTime",
 				FileTime.fromMillis(attributes.lastModifiedTime()),
 				LinkOption.NOFOLLOW_LINKS);

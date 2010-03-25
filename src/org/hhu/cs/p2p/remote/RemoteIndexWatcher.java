@@ -13,7 +13,9 @@ import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 
 /**
- * @author Oliver
+ * The remote index watcher
+ * 
+ * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
  * 
  */
 public class RemoteIndexWatcher implements EntryListener<String, Attributes> {
@@ -21,17 +23,8 @@ public class RemoteIndexWatcher implements EntryListener<String, Attributes> {
 	private static Logger logger = Logger.getLogger(RemoteIndexWatcher.class);
 
 	public void entryAdded(EntryEvent<String, Attributes> event) {
-
-		// if we are responsible, we can ignore the request
-		if (event.getValue().getAddress().equals(
-				Registry.getInstance().getAddress())) {
-			if (logger.isTraceEnabled()) {
-				logger.trace(String.format(
-						"Request came from this machine. Ignoring %1s", event
-								.getKey()));
-			}
+		if (ignorable(event))
 			return;
-		}
 
 		logger.info(String.format("Adding entry %1s", event.getKey()));
 		Registry.getInstance().getChangeService().accept(
@@ -41,12 +34,23 @@ public class RemoteIndexWatcher implements EntryListener<String, Attributes> {
 	}
 
 	public void entryRemoved(EntryEvent<String, Attributes> event) {
+		if (ignorable(event))
+			return;
+
 		logger.info(String.format("Deleting entry %1s", event.getKey()));
+		Registry.getInstance().getChangeService().accept(
+				new Change(Paths.get(event.getKey()), event.getValue()
+						.getAddress(), ChangeType.DELETE, Direction.PULL));
 	}
 
 	public void entryUpdated(EntryEvent<String, Attributes> event) {
+		if (ignorable(event))
+			return;
+
 		logger.info(String.format("Updating entry %1s", event.getKey()));
-		// handle like entry added
+		Registry.getInstance().getChangeService().accept(
+				new Change(Paths.get(event.getKey()), event.getValue()
+						.getAddress(), ChangeType.UPDATE, Direction.PULL));
 	}
 
 	@Override
@@ -54,4 +58,22 @@ public class RemoteIndexWatcher implements EntryListener<String, Attributes> {
 		logger.info(String.format("Evecting entry %1s", event.getKey()));
 	}
 
+	/**
+	 * Checks if the event was fired by itself
+	 * 
+	 * @param event
+	 * @return
+	 */
+	private boolean ignorable(EntryEvent<String, Attributes> event) {
+		if (event.getValue().getAddress().equals(
+				Registry.getInstance().getAddress())) {
+			if (logger.isTraceEnabled()) {
+				logger.trace(String.format(
+						"Request came from this machine. Ignoring %1s", event
+								.getKey()));
+			}
+			return true;
+		}
+		return false;
+	}
 }

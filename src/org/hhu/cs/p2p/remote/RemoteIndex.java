@@ -1,15 +1,13 @@
 package org.hhu.cs.p2p.remote;
 
 import java.nio.file.Path;
-import java.util.Iterator;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hhu.cs.p2p.index.Attributes;
 
+import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.Member;
 
 /**
  * The remote index using hazelcast
@@ -29,18 +27,11 @@ public class RemoteIndex {
 	 * Default constructor
 	 */
 	public RemoteIndex() {
-		logger.info("IndexService created.");
-
 		logger.info("Getting hazelcast map.");
-		map = Hazelcast.getMap(MAP_NAME);
-		map.addEntryListener(new RemoteIndexWatcher(), true);
 
-		Set<Member> members = Hazelcast.getCluster().getMembers();
-		Iterator<Member> iter = members.iterator();
-		while (iter.hasNext()) {
-			Member m = iter.next();
-			m.getInetSocketAddress();
-		}
+		map = Hazelcast.getMap(MAP_NAME);
+
+		logger.info("IndexService created.");
 	}
 
 	/**
@@ -80,6 +71,13 @@ public class RemoteIndex {
 		synchronized (map) {
 			return map.get(path.toString());
 		}
+	}
+
+	/**
+	 * @param entryListener
+	 */
+	public void addEntryListener(EntryListener<String, Attributes> entryListener) {
+		map.addEntryListener(entryListener, true);
 	}
 
 	private void put(String path, Attributes attributes) {
