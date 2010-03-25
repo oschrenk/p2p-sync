@@ -200,7 +200,11 @@ public class LocalIndexWatcher implements Runnable {
 		}
 	}
 
+	/**
+	 * Shutdown the local watcher
+	 */
 	public void shutdown() {
+		logger.info("Shutting down.");
 		for (WatchKey key : keys.keySet()) {
 			key.cancel();
 		}

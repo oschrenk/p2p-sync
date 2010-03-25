@@ -90,7 +90,7 @@ public class ChangeService extends Thread {
 	 * Stops the service
 	 */
 	public void shutdown() {
-		logger.info("Stopping ChangeService.");
+		logger.info("Shutting down.");
 		running = false;
 		if (queue != null) {
 			synchronized (queue) {
@@ -98,7 +98,6 @@ public class ChangeService extends Thread {
 				running = false;
 			}
 		}
-
 	}
 
 	@Override
