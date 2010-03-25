@@ -89,15 +89,21 @@ public class ChangeService extends Thread {
 	/**
 	 * Stops the service
 	 */
-	private void stopService() {
+	public void shutdown() {
 		logger.info("Stopping ChangeService.");
-		queue.clear();
 		running = false;
+		if (queue != null) {
+			synchronized (queue) {
+				queue.clear();
+				running = false;
+			}
+		}
+
 	}
 
 	@Override
 	protected void finalize() throws Throwable {
-		stopService();
+		shutdown();
 		super.finalize();
 	}
 }

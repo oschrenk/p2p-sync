@@ -22,6 +22,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.hhu.cs.p2p.core.Registry;
+import org.hhu.cs.p2p.index.Change;
+import org.hhu.cs.p2p.index.ChangeType;
+import org.hhu.cs.p2p.index.Direction;
 
 /**
  * 
@@ -37,8 +41,6 @@ public class LocalIndexWatcher implements Runnable {
 
 	private final Map<WatchKey, Path> keys;
 
-	private final LocalIndex localIndex;
-
 	private final Path rootDirectory;
 
 	/**
@@ -49,12 +51,10 @@ public class LocalIndexWatcher implements Runnable {
 	 * @param rootDirectory
 	 * @throws IOException
 	 */
-	public LocalIndexWatcher(LocalIndex localIndex, Path rootDirectory)
-			throws IOException {
+	public LocalIndexWatcher(Path rootDirectory) throws IOException {
 		this.watchService = FileSystems.getDefault().newWatchService();
 		this.keys = new HashMap<WatchKey, Path>();
 		this.rootDirectory = rootDirectory;
-		this.localIndex = localIndex;
 
 		logger.info(String.format("Created DirectoryWatcher on %1s",
 				rootDirectory));
@@ -115,40 +115,70 @@ public class LocalIndexWatcher implements Runnable {
 			}
 
 			for (WatchEvent<?> e : key.pollEvents()) {
+				logger.trace("Fired WatchEvent");
 
 				@SuppressWarnings("unchecked")
 				WatchEvent<Path> event = (WatchEvent<Path>) e;
 
 				Path parentDirectory = keys.get(key);
-				Path child = parentDirectory.resolve(event.context());
+				Path absoutePath = parentDirectory.resolve(event.context());
+				Path relativePath = rootDirectory.relativize(absoutePath);
 
+				// ignore hidden files/directories
+				if (absoutePath.isHidden()) {
+					if (logger.isTraceEnabled())
+						logger
+								.trace(String.format("Ignoring %1s",
+										absoutePath));
+					return;
+				}
+
+				// creating entry
 				if (e.kind() == StandardWatchEventKind.ENTRY_CREATE) {
 					BasicFileAttributes basicFileAttributes = Attributes
-							.readBasicFileAttributes(child,
+							.readBasicFileAttributes(absoutePath,
 									LinkOption.NOFOLLOW_LINKS);
 					if (logger.isTraceEnabled())
-						logger.trace("Path was created: " + child);
+						logger.trace("Path was created: " + relativePath);
 					if (basicFileAttributes.isDirectory()) {
-						register(child);
+						// TODO create directories
+						register(absoutePath);
 					} else {
-						localIndex.add(child);
+
+						Registry.getInstance().getChangeService().accept(
+								new Change(relativePath, Registry.getInstance()
+										.getAddress(), ChangeType.CREATE,
+										Direction.PUSH));
 					}
+
+					// updating entry
 				} else if (e.kind() == StandardWatchEventKind.ENTRY_MODIFY) {
 					BasicFileAttributes basicFileAttributes = Attributes
-							.readBasicFileAttributes(child,
+							.readBasicFileAttributes(absoutePath,
 									LinkOption.NOFOLLOW_LINKS);
 					if (logger.isTraceEnabled())
-						logger.trace("Path was modified: " + child);
+						logger.trace("Path was modified: " + relativePath);
 
 					if (basicFileAttributes.isDirectory()) {
 						// do nothing
 					} else {
-						localIndex.update(child);
+						Registry.getInstance().getChangeService().accept(
+								new Change(relativePath, Registry.getInstance()
+										.getAddress(), ChangeType.CREATE,
+										Direction.PUSH));
 					}
 
+					// deleting entry
 				} else if (e.kind() == StandardWatchEventKind.ENTRY_DELETE) {
 					if (logger.isTraceEnabled())
-						logger.trace("Path was deleted: " + child);
+						logger.trace("Path was deleted: " + relativePath);
+
+					Registry.getInstance().getChangeService().accept(
+							new Change(relativePath, Registry.getInstance()
+									.getAddress(), ChangeType.DELETE,
+									Direction.PUSH));
+
+					// overflow
 				} else if (e.kind() == StandardWatchEventKind.OVERFLOW) {
 					logger.info("Overflow occurred");
 					continue;
@@ -170,14 +200,21 @@ public class LocalIndexWatcher implements Runnable {
 		}
 	}
 
-	@Override
-	protected void finalize() throws Throwable {
-		super.finalize();
-
+	public void shutdown() {
 		for (WatchKey key : keys.keySet()) {
 			key.cancel();
 		}
 
-		watchService.close();
+		try {
+			watchService.close();
+		} catch (IOException e) {
+			logger.fatal("Error shutting down", e);
+		}
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		shutdown();
+		super.finalize();
 	}
 }

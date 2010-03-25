@@ -2,7 +2,9 @@ package org.hhu.cs.p2p.tasks;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 
 import org.apache.log4j.Logger;
 import org.hhu.cs.p2p.core.Registry;
@@ -35,13 +37,20 @@ public class CreatePullTask extends GenericTask {
 	@Override
 	public void execute() throws IOException {
 		Attributes attributes = remoteIndex.get(path);
+		Path rootDirectory = Registry.getInstance().getRootDirectory();
+
 		try {
 			// TODO get rid of getRootDirectory, stupid (non)dependency
-			new NetworkClient(Registry.getInstance().getRootDirectory())
-					.request(attributes.getAddress(), path.toString());
+			new NetworkClient(rootDirectory).request(attributes.getAddress(),
+					path);
 		} catch (URISyntaxException e) {
 			logger.error(e);
 		}
+
+		rootDirectory.resolve(path).setAttribute("basic:lastModifiedTime",
+				FileTime.fromMillis(attributes.lastModifiedTime()),
+				LinkOption.NOFOLLOW_LINKS);
+
 		localIndex.add(path);
 	}
 }

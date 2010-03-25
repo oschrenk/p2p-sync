@@ -1,9 +1,11 @@
 package org.hhu.cs.p2p.net;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.nio.file.Path;
 
 import org.apache.http.client.ClientProtocolException;
@@ -49,15 +51,15 @@ public class NetworkClient {
 	 * Requests a file from a server under the given adress/path
 	 * 
 	 * @param socketAdress
-	 * @param path
-	 *            path to the file
+	 * @param relativePath
+	 *            relative path to the file
 	 * @throws ClientProtocolException
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public void request(InetSocketAddress socketAdress, String path)
+	public void request(InetSocketAddress socketAdress, Path relativePath)
 			throws ClientProtocolException, IOException, URISyntaxException {
-		request(getURI(socketAdress, path));
+		request(getURI(socketAdress, relativePath));
 
 	}
 
@@ -73,10 +75,29 @@ public class NetworkClient {
 		super.finalize();
 	}
 
-	private URI getURI(InetSocketAddress socketAdress, String path)
+	private URI getURI(InetSocketAddress socketAdress, Path path)
 			throws URISyntaxException {
-		return URIUtils.createURI(HTTP_SCHEME, socketAdress.getAddress()
-				.getHostAddress(), socketAdress.getPort(), path, NULL_QUERY,
-				NULL_FRAGMENT);
+		try {
+			return URIUtils.createURI(HTTP_SCHEME, socketAdress.getAddress()
+					.getHostAddress(), socketAdress.getPort(),
+					getURLEncodedPath(path), NULL_QUERY, NULL_FRAGMENT);
+		} catch (UnsupportedEncodingException e) {
+			logger.fatal("Encodig not found. Shouldn't happen", e);
+		}
+		return null;
 	}
+
+	private String getURLEncodedPath(Path path)
+			throws UnsupportedEncodingException {
+		StringBuilder sb = new StringBuilder();
+		int nameCount = path.getNameCount();
+		for (int i = 0; i < nameCount; i++) {
+			sb.append(URLEncoder.encode(path.getName(i).toString(), "UTF-8"));
+			if (i != nameCount - 1)
+				sb.append('/');
+		}
+
+		return sb.toString();
+	}
+
 }

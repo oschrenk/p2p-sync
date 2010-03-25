@@ -2,6 +2,7 @@ package org.hhu.cs.p2p.net;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.apache.log4j.Logger;
 
@@ -72,10 +73,18 @@ public class NetworkService {
 		}
 	}
 
+	public void shutdown() {
+		ws.stop();
+	}
+
 	@Override
 	protected void finalize() throws Throwable {
-		ws.stop();
+		shutdown();
 		super.finalize();
+	}
+
+	public static void main(String[] args) {
+		new NetworkService(8080, Paths.get("/Users/Oliver/Downloads/)")).start();
 	}
 
 }

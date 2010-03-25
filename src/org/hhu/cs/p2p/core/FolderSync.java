@@ -66,23 +66,21 @@ public class FolderSync {
 			registry.setAddress(new InetSocketAddress(InetAddress
 					.getLocalHost(), options.getPort()));
 
-			// root directory is global
+			// root directory is needed globally
 			registry.setRootDirecory(rootDirectory);
 
-			new NetworkService(options.getPort(), rootDirectory).start();
+			final NetworkService networkService = new NetworkService(options
+					.getPort(), rootDirectory);
+			networkService.start();
 
 			// will block for initial indexing
-			LocalIndex localIndex = new LocalIndex(rootDirectory);
+			final LocalIndex localIndex = new LocalIndex(rootDirectory);
 
-			// will only produce
-			LocalIndexWatcher directoryWatcher = new LocalIndexWatcher(
-					localIndex, rootDirectory);
+			final LocalIndexWatcher localIndexWatcher = new LocalIndexWatcher(
+					rootDirectory);
+			final RemoteIndex remoteIndex = new RemoteIndex();
 
-			// producer, consumer
-			RemoteIndex remoteIndex = new RemoteIndex();
-
-			// change service is needed right away, start it
-			ChangeService changeService = new ChangeService(localIndex,
+			final ChangeService changeService = new ChangeService(localIndex,
 					remoteIndex);
 			new Thread(changeService).start();
 
@@ -92,10 +90,20 @@ public class FolderSync {
 			registry.setAddress(new InetSocketAddress(InetAddress
 					.getLocalHost(), options.getPort()));
 
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					changeService.shutdown();
+					networkService.shutdown();
+					localIndexWatcher.shutdown();
+				}
+
+			});
+
 			// startup sequence
 			new Startup().run();
 
-			new Thread(directoryWatcher).start();
+			new Thread(localIndexWatcher).start();
 
 		} catch (IOException e) {
 			logger.fatal(e);
