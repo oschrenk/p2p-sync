@@ -129,11 +129,10 @@ public class LocalIndexWatcher implements Runnable {
 						logger
 								.trace(String.format("Ignoring %1s",
 										absoutePath));
-					continue;
 				}
 
 				// creating entry
-				if (e.kind() == StandardWatchEventKind.ENTRY_CREATE) {
+				else if (e.kind() == StandardWatchEventKind.ENTRY_CREATE) {
 					BasicFileAttributes basicFileAttributes = Attributes
 							.readBasicFileAttributes(absoutePath,
 									LinkOption.NOFOLLOW_LINKS);
