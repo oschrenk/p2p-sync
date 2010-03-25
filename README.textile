@@ -1,5 +1,9 @@
 h1. Folder Sync
 
+bq. There are only two hard things in Computer Science: cache invalidation and naming things - Phil Karlton
+
+
+
 Folder Sync is quick solution if you want to sync up two directories in the same network without hassle. 
 
 Its really good for quickshot syncs, where one party doesn't have any files of the other party. Once the service is set up om both parties, and is kept running, the two directories will keep in sync.
