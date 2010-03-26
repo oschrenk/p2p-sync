@@ -6,7 +6,7 @@ Folder Sync is quick solution if you want to sync up two directories in the same
 
 Its really good for quickshot syncs, where one party doesn't have any files of the other party. Once the service is set up om both parties, and is kept running, the two directories will keep in sync.
 
-It uses "p2p technology":http://www.hazelcast.com/ to do so. Although not a p2p application in the sense of file sharing applications, but more in the sense of a content delayed networks.
+It uses "hazelcast":http://www.hazelcast.com/ to do its thing. 
 
 h2. Development
 
@@ -32,13 +32,27 @@ $ ant
 
 h2. Usage
 
-h2. Running the application
+h3. Running the application
 
 bc. $ java -jar dist/sync.jar /path/to/directory/to/watch
 
 You can specify the port under which the files are offered, by using the @-p@ option
 
 bc. $ java -jar dist/sync.jar -p 49154 /path/to/directory/to/watch
+
+h3. Warning!
+
+There is no interactive mode to create a global state. The first member defines the global state! Let's say User A is the first, User B comes second; that means:
+* if A has a file in @relative/path/file@ and B doesn't, it will be created
+* if B (!) has a file in @relative/path/file@ and A doesn't, it WILL BE DELETED
+
+h2. Implementation
+
+h3. Main Idea
+
+Each user monitors one directory. This directory will be indexed via a local index. Hazelcast also manages a remote index (of relative paths), which represents the global state.
+
+If the user changes/updates/deletes a file the local index changes and a CRUD Push event will be fired. The remote indexes, serving as a "global" entity listens to these events and incorporates the changes. In turn the remote index fires CRUD Pull events. The users listens to these events and connects to the user responsible for the event.
 
 h2. Background
 
@@ -82,6 +96,31 @@ Again the solution seems to push the changes to Member B. But Member A might hav
 
 The solution is to manually find a state on which both users agree on.  This means that each difference has to be acknowledged.
 
+h4. Current solution
+
+Right now there is no interactive mode or ui to define the global state. The first member to connect, defines the global state.
+
 h3. Hot synchronization phase
 
 Once both users have established a state of their files on which they both agree on. Every change to the respective filesytem can be pushed directly to the other particpating members.
+
+h2. Problems
+
+h3. Oscillation
+
+As both indexes work seperately, the local index couldn't differentiate between user generated changes and changes that were pulled because of CRUD Pull events (and changed the filesystem). 
+
+An identifier was needed. The first idea was making use of the last modified field. Unfortunately there were problems setting the datetime via the NIO.2 API.
+
+So I only make use of a SHA-1 hash value of the contents of the file. 
+
+h2. Future
+
+h3. Near
+
+* Setting date/times via Java API
+* Add support of deleting/creating directories (lost because of SHA-1 use) 
+
+h3. Far
+
+* support to download from various sources
