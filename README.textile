@@ -85,33 +85,3 @@ The solution is to manually find a state on which both users agree on.  This mea
 h3. Hot synchronization phase
 
 Once both users have established a state of their files on which they both agree on. Every change to the respective filesytem can be pushed directly to the other particpating members.
-
-h2. Internals
-
-h3. Messages
-
-h4. LocalIndexWatcher
-
-h5. Create.Push
-
-remoteIndex.put (path, info)
-
-h5. Update.Push
-
-remoteIndex.put (path, info)
-
-h5. Delete.Push
-
-remoteIndex.put (path, info)
-
-h4. RemoteIndexWatcher	
-
-h5. Create.Pull
-
-# Get address of member that made change
-# if address == local, ignore next step
-# HttpCLient.get(address, path)
-
-h5. Update.Pull
-
-h5. Delete.Pull

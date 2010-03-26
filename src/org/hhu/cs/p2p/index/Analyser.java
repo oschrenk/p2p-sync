@@ -2,6 +2,7 @@ package org.hhu.cs.p2p.index;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,6 +25,15 @@ import org.hhu.cs.p2p.core.Registry;
 public class Analyser {
 
 	private static Logger logger = Logger.getLogger(Analyser.class);
+
+	private Comparator<Attributes> comparator;
+
+	/**
+	 * @param comparator
+	 */
+	public Analyser(Comparator<Attributes> comparator) {
+		this.comparator = comparator;
+	}
 
 	/**
 	 * @param local
@@ -60,7 +70,8 @@ public class Analyser {
 			else {
 				// TODO NullChangeObject?
 				Change change = compareAttributes(localIteratorPath, local
-						.get(localIteratorPath), remoteAttributes);
+						.get(localIteratorPath), remoteAttributes,
+						this.comparator);
 				if (change != null)
 					changes.add(change);
 
@@ -89,19 +100,19 @@ public class Analyser {
 	}
 
 	private Change compareAttributes(Path path, Attributes localAttributes,
-			Attributes remoteAttributes) {
-		long localModified = localAttributes.lastModifiedTime();
-		long remoteModified = remoteAttributes.lastModifiedTime();
+			Attributes remoteAttributes, Comparator<Attributes> comparator) {
 
 		if (logger.isTraceEnabled())
 			logger.trace(String.format(
-					"Comparing times on %1s, local: %2s, remote %3s", path
-							.toString(), localModified, remoteModified));
+					"Comparing attributes on %1s, local: %2s, remote %3s", path
+							.toString(), localAttributes, remoteAttributes));
 
-		if (localModified < remoteModified) {
+		int result = comparator.compare(localAttributes, remoteAttributes);
+
+		if (result < 0) {
 			return new Change(path, remoteAttributes.getAddress(),
 					ChangeType.UPDATE, Direction.PULL);
-		} else if (localModified == remoteModified) {
+		} else if (result == 0) {
 			return null;
 		} else {
 			return new Change(path, Registry.getInstance().getAddress(),

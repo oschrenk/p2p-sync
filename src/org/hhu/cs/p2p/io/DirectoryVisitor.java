@@ -22,7 +22,7 @@ import org.hhu.cs.p2p.local.LocalIndex;
 public class DirectoryVisitor implements FileVisitor<Path> {
 
 	private static Logger logger = Logger.getLogger(DirectoryVisitor.class);
-	
+
 	private LocalIndex localIndex;
 
 	private Path rootDirectory;

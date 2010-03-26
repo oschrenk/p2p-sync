@@ -36,13 +36,13 @@ public class CreatePullTask extends GenericTask {
 
 	@Override
 	public void execute() throws IOException {
-		Attributes attributes = remoteIndex.get(path);
+		Attributes remoteAttributes = remoteIndex.get(path);
 		Path rootDirectory = Registry.getInstance().getRootDirectory();
 
 		try {
 			// TODO get rid of getRootDirectory, stupid (non)dependency
-			new NetworkClient(rootDirectory).request(attributes.getAddress(),
-					path);
+			new NetworkClient(rootDirectory).request(remoteAttributes
+					.getAddress(), path);
 		} catch (URISyntaxException e) {
 			logger.error(e);
 		}
@@ -51,11 +51,12 @@ public class CreatePullTask extends GenericTask {
 
 		}
 		logger.trace(String.format("Setting time on %1s to %2s", path,
-				attributes.lastModifiedTime()));
+				remoteAttributes.lastModifiedTime()));
+
 		rootDirectory.resolve(path).setAttribute("basic:lastModifiedTime",
-				FileTime.fromMillis(attributes.lastModifiedTime()),
+				FileTime.fromMillis(remoteAttributes.lastModifiedTime()),
 				LinkOption.NOFOLLOW_LINKS);
 
-		localIndex.add(path);
+		localIndex.addFromRemote(path, remoteAttributes);
 	}
 }

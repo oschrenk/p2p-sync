@@ -71,6 +71,7 @@ public class FileResponseHandler implements ResponseHandler<Path> {
 				if (out != null) {
 					out.flush();
 					out.close();
+					logger.info(String.format("File written to %1s.", p));
 				}
 			}
 		}

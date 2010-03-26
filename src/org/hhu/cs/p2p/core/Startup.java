@@ -1,5 +1,6 @@
 package org.hhu.cs.p2p.core;
 
+import java.util.Comparator;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
@@ -12,6 +13,9 @@ import org.hhu.cs.p2p.index.ConflictResolver;
 import org.hhu.cs.p2p.index.LocalWinsConflictResolver;
 import org.hhu.cs.p2p.index.RemoteWinsConflictResolver;
 import org.hhu.cs.p2p.index.TreeConflict;
+import org.hhu.cs.p2p.index.comp.AttributesVersionComparator;
+import org.hhu.cs.p2p.index.comp.LocalFavoredHashComparator;
+import org.hhu.cs.p2p.index.comp.RemoteFavoredHashComparator;
 import org.hhu.cs.p2p.local.LocalIndex;
 
 import com.hazelcast.core.Hazelcast;
@@ -30,28 +34,28 @@ public class Startup {
 
 	void run() {
 
-		logger.info("Getting hazelcast map.");
 		IMap<String, Attributes> map = Hazelcast.getMap("p2p");
 
 		Set<Member> members = Hazelcast.getCluster().getMembers();
 		int size = members.size();
 		if (size == 1) {
-			init(map, size, new LocalWinsConflictResolver());
+			init(map, size, new LocalWinsConflictResolver(),
+					new LocalFavoredHashComparator());
 		} else {
-			init(map, size, new RemoteWinsConflictResolver());
+			init(map, size, new RemoteWinsConflictResolver(),
+					new RemoteFavoredHashComparator());
 		}
 	}
 
 	private void init(IMap<String, Attributes> map, int size,
-			ConflictResolver conflictResolver) {
-		logger.info(String.format("Member #%1s, %2s map entries", size, map
-				.size()));
+			ConflictResolver conflictResolver, Comparator<Attributes> comparator) {
 		Lock lock = Hazelcast.getLock(map);
 		lock.lock();
 
 		LocalIndex localIndex = Registry.getInstance().getLocalIndex();
 
-		Analysis analysis = new Analyser().compare(localIndex.map(), map);
+		Analyser analyser = new Analyser(new AttributesVersionComparator());
+		Analysis analysis = analyser.compare(localIndex.map(), map);
 		Set<Change> changes;
 		Set<TreeConflict> conflicts;
 

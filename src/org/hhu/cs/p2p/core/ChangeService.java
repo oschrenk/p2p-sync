@@ -12,6 +12,7 @@ import org.hhu.cs.p2p.remote.RemoteIndex;
 import org.hhu.cs.p2p.tasks.TaskBuilder;
 
 /**
+ * Serves as a message queue, accepting events and delegating tasks
  * 
  * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
  * 

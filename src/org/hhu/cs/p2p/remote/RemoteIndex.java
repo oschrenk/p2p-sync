@@ -27,11 +27,10 @@ public class RemoteIndex {
 	 * Default constructor
 	 */
 	public RemoteIndex() {
-		logger.info("Getting hazelcast map.");
 
 		map = Hazelcast.getMap(MAP_NAME);
 
-		logger.info("IndexService created.");
+		logger.info("RemoteIndex created.");
 	}
 
 	/**

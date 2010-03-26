@@ -38,27 +38,27 @@ public class UpdatePullTask extends GenericTask {
 	public void execute() throws IOException {
 		logger.info(String.format("Executing %1s on %2s", UpdatePullTask.class,
 				path));
-		
-		Attributes attributes = remoteIndex.get(path);
+
+		Attributes remoteAttributes = remoteIndex.get(path);
 		Path rootDirectory = Registry.getInstance().getRootDirectory();
 
 		try {
 			// TODO get rid of getRootDirectory, stupid (non)dependency
-			new NetworkClient(rootDirectory).request(attributes.getAddress(),
-					path);
+			new NetworkClient(rootDirectory).request(remoteAttributes
+					.getAddress(), path);
 		} catch (URISyntaxException e) {
 			logger.error(e);
 		}
 
 		if (logger.isTraceEnabled()) {
-
+			logger.trace(String.format("Setting time on %1s to %2s", path,
+					remoteAttributes.lastModifiedTime()));
 		}
-		logger.trace(String.format("Setting time on %1s to %2s", path,
-				attributes.lastModifiedTime()));
+
 		rootDirectory.resolve(path).setAttribute("basic:lastModifiedTime",
-				FileTime.fromMillis(attributes.lastModifiedTime()),
+				FileTime.fromMillis(remoteAttributes.lastModifiedTime()),
 				LinkOption.NOFOLLOW_LINKS);
 
-		localIndex.add(path);
+		localIndex.updateFromRemote(path, remoteAttributes);
 	}
 }

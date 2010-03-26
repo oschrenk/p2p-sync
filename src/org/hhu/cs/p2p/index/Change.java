@@ -3,7 +3,12 @@ package org.hhu.cs.p2p.index;
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
 
+import com.hazelcast.core.EntryListener;
+
 /**
+ * Holds information about what has changed. Unfortunately we have to include
+ * information about the originating source, as hazelcast offers no PAI top get
+ * member info from {@link EntryListener}
  * 
  * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
  * 
