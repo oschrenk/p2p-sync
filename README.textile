@@ -116,11 +116,8 @@ So I only make use of a SHA-1 hash value of the contents of the file.
 
 h2. Future
 
-h3. Near
-
 * Setting date/times via Java API
 * Add support of deleting/creating directories (lost because of SHA-1 use) 
-
-h3. Far
-
+* Interactive ConflictResolver
 * support to download from various sources
+* FileInspector to support merges in files (vcards)
