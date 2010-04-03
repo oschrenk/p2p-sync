@@ -11,7 +11,7 @@ import org.hhu.cs.p2p.core.Registry;
  * local machine, meaning that
  * <ul>
  * <li>paths that exist remote but not local, are deleted on remote</li>
- * <li>paths that exsts local but not remote, are created on remote</li>
+ * <li>paths that exists local but not remote, are created on remote</li>
  * </ul>
  * 
  * @author Oliver Schrenk <oliver.schrenk@uni-duesseldorf.de>
@@ -27,15 +27,13 @@ public class LocalWinsConflictResolver implements ConflictResolver {
 			TreeConflict conflict = iter.next();
 
 			if (conflict.getExistence() == Existence.LOCAL) {
-				changes.add(new Change(conflict.getPath(), Registry
-						.getInstance().getAddress(), ChangeType.CREATE,
-						Direction.PUSH));
+				changes.add(new Change(Registry.getInstance().getAddress(),
+						conflict.getPath(), ChangeType.CREATE, Direction.PUSH));
 			}
 
 			else if (conflict.getExistence() == Existence.REMOTE) {
-				changes.add(new Change(conflict.getPath(), Registry
-						.getInstance().getAddress(), ChangeType.DELETE,
-						Direction.PUSH));
+				changes.add(new Change(Registry.getInstance().getAddress(),
+						conflict.getPath(), ChangeType.DELETE, Direction.PUSH));
 			}
 
 		}

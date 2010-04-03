@@ -110,12 +110,12 @@ public class Analyser {
 		int result = comparator.compare(localAttributes, remoteAttributes);
 
 		if (result < 0) {
-			return new Change(path, remoteAttributes.getAddress(),
+			return new Change(remoteAttributes.getAddress(), path,
 					ChangeType.UPDATE, Direction.PULL);
 		} else if (result == 0) {
 			return null;
 		} else {
-			return new Change(path, Registry.getInstance().getAddress(),
+			return new Change(Registry.getInstance().getAddress(), path,
 					ChangeType.UPDATE, Direction.PUSH);
 		}
 	}

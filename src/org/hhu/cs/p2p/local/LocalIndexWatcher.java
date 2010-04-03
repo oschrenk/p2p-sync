@@ -156,8 +156,8 @@ public class LocalIndexWatcher implements Runnable {
 											absoutePath));
 						} else {
 							Registry.getInstance().getChangeService().accept(
-									new Change(relativePath, Registry
-											.getInstance().getAddress(),
+									new Change(Registry.getInstance()
+											.getAddress(), relativePath,
 											ChangeType.CREATE, Direction.PUSH));
 						}
 
@@ -181,8 +181,8 @@ public class LocalIndexWatcher implements Runnable {
 									absoutePath));
 						} else {
 							Registry.getInstance().getChangeService().accept(
-									new Change(relativePath, Registry
-											.getInstance().getAddress(),
+									new Change(Registry.getInstance()
+											.getAddress(), relativePath,
 											ChangeType.UPDATE, Direction.PUSH));
 						}
 					}
@@ -193,8 +193,8 @@ public class LocalIndexWatcher implements Runnable {
 						logger.trace("Path was deleted: " + relativePath);
 
 					Registry.getInstance().getChangeService().accept(
-							new Change(relativePath, Registry.getInstance()
-									.getAddress(), ChangeType.DELETE,
+							new Change(Registry.getInstance().getAddress(),
+									relativePath, ChangeType.DELETE,
 									Direction.PUSH));
 
 					// overflow
@@ -263,7 +263,7 @@ public class LocalIndexWatcher implements Runnable {
 			for (WatchKey key : keys.keySet()) {
 				key.cancel();
 			}
-		
+
 			watchService.close();
 		} catch (IOException e) {
 			logger.fatal("Error shutting down", e);

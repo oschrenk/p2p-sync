@@ -32,14 +32,14 @@ public class RemoteWinsConflictResolver implements ConflictResolver {
 			logger.info(String.format("Resolving conflict: %1s", conflict));
 
 			if (conflict.getExistence() == Existence.LOCAL) {
-				changes.add(new Change(conflict.getPath(), conflict
-						.getLocalAttributes().getAddress(), ChangeType.DELETE,
+				changes.add(new Change(conflict.getLocalAttributes()
+						.getAddress(), conflict.getPath(), ChangeType.DELETE,
 						Direction.PULL));
 			}
 
 			else if (conflict.getExistence() == Existence.REMOTE) {
-				changes.add(new Change(conflict.getPath(), conflict
-						.getRemoteAttributes().getAddress(), ChangeType.CREATE,
+				changes.add(new Change(conflict.getRemoteAttributes()
+						.getAddress(), conflict.getPath(), ChangeType.CREATE,
 						Direction.PULL));
 			}
 

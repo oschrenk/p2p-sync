@@ -1,2 +1,2 @@
 Main-Class: org.hhu.cs.p2p.core.FolderSync
-Class-Path: . lib/hazelcast-1.8.2.jar lib/jewelcli-0.6.jar lib/commons-logging-1.1.1.jar lib/log4j-1.2.15.jar lib/grizzly-http-webserver-1.9.18-k.jar lib/httpclient-4.0.1.jar lib/httpcore-4.0.1.jar
+Class-Path: . lib/hazelcast-1.8.3-SNAPSHOT.jar lib/jewelcli-0.6.jar lib/commons-logging-1.1.1.jar lib/log4j-1.2.15.jar lib/grizzly-http-webserver-1.9.18-k.jar lib/httpclient-4.0.1.jar lib/httpcore-4.0.1.jar

@@ -28,8 +28,8 @@ public class RemoteIndexWatcher implements EntryListener<String, Attributes> {
 
 		logger.info(String.format("Adding entry %1s", event.getKey()));
 		Registry.getInstance().getChangeService().accept(
-				new Change(Paths.get(event.getKey()), event.getValue()
-						.getAddress(), ChangeType.CREATE, Direction.PULL));
+				new Change(event.getValue().getAddress(), Paths.get(event
+						.getKey()), ChangeType.CREATE, Direction.PULL));
 
 	}
 
@@ -39,8 +39,8 @@ public class RemoteIndexWatcher implements EntryListener<String, Attributes> {
 
 		logger.info(String.format("Deleting entry %1s", event.getKey()));
 		Registry.getInstance().getChangeService().accept(
-				new Change(Paths.get(event.getKey()), event.getValue()
-						.getAddress(), ChangeType.DELETE, Direction.PULL));
+				new Change(event.getValue().getAddress(), Paths.get(event
+						.getKey()), ChangeType.DELETE, Direction.PULL));
 	}
 
 	public void entryUpdated(EntryEvent<String, Attributes> event) {
@@ -49,8 +49,8 @@ public class RemoteIndexWatcher implements EntryListener<String, Attributes> {
 
 		logger.info(String.format("Updating entry %1s", event.getKey()));
 		Registry.getInstance().getChangeService().accept(
-				new Change(Paths.get(event.getKey()), event.getValue()
-						.getAddress(), ChangeType.UPDATE, Direction.PULL));
+				new Change(event.getValue().getAddress(), Paths.get(event
+						.getKey()), ChangeType.UPDATE, Direction.PULL));
 	}
 
 	@Override

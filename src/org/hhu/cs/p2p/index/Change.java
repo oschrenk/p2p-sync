@@ -29,11 +29,11 @@ public class Change {
 	 * @param type
 	 * @param direction
 	 */
-	public Change(Path path, InetSocketAddress address, ChangeType type,
+	public Change(InetSocketAddress address, Path path, ChangeType type,
 			Direction direction) {
 		super();
-		this.path = path;
 		this.address = address;
+		this.path = path;
 		this.type = type;
 		this.direction = direction;
 	}
